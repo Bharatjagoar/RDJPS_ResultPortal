@@ -1,0 +1,209 @@
+/* =========================
+   RESET
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+.container {
+    width: 210mm;
+    /* A4 width */
+    min-height: 297mm;
+    /* A4 height */
+    padding: 20mm 15mm;
+    /* SAFE print margins */
+    margin: 0 auto;
+    background: #fff;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #111;
+    box-sizing: border-box;
+}
+
+
+/* Prevent ugly cuts */
+.header,
+.student-info,
+.marks-table,
+.remarks-section,
+.attendance,
+.general-remarks,
+.footer {
+  page-break-inside: avoid;
+}
+
+/* Allow page breaks only BETWEEN sections */
+.page-break {
+  page-break-before: always;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+.header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.school-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.school-subtitle {
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.school-address {
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.record-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* =========================
+   STUDENT INFO
+========================= */
+.student-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+.student-info div {
+    font-size: 14px;
+}
+
+.student-info strong {
+    font-weight: bold;
+}
+
+/* =========================
+   MARKS TABLE
+========================= */
+.marks-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.marks-table th,
+.marks-table td {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.marks-table th {
+    background: #e0e0e0;
+    font-weight: bold;
+}
+
+.marks-table td:first-child {
+    text-align: left;
+    font-weight: bold;
+}
+
+/* =========================
+   REMARKS SECTION
+========================= */
+.remarks-section {
+    margin-bottom: 20px;
+}
+
+.remarks-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-decoration: underline;
+}
+
+.remarks-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+.remarks-table td {
+    border: 1px solid #000;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.remarks-table td:first-child {
+    font-weight: bold;
+    width: 150px;
+}
+
+/* =========================
+   ATTENDANCE
+========================= */
+.attendance {
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.attendance strong {
+    font-weight: bold;
+}
+
+/* =========================
+   GENERAL REMARKS
+========================= */
+.general-remarks {
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.general-remarks strong {
+    font-weight: bold;
+}
+
+/* =========================
+   FOOTER (SIGNATURES)
+========================= */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #000;
+}
+
+.footer-item {
+    width: 30%;
+    text-align: center;
+    font-size: 12px;
+}
+
+.footer-item div {
+    margin-top: 30px;
+    border-top: 1px solid #000;
+    padding-top: 5px;
+    font-weight: bold;
+}
+
+/* =========================
+   NOTE
+========================= */
+.note {
+    text-align: center;
+    font-size: 10px;
+    margin-top: 20px;
+    font-style: italic;
+}

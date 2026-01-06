@@ -1,0 +1,54 @@
+.verification-results {
+  background: #ffffff;
+  margin-top: 20px;
+  padding: 20px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.verification-results h4 {
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.verification-results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.verification-results th,
+.verification-results td {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.verification-results th {
+  background: #f5f6fa;
+  font-weight: 600;
+  color: #444;
+}
+
+.verification-results tr:hover {
+  background: #fafafa;
+}
+
+/* Status badges */
+.pending {
+  color: #b7791f;
+  font-weight: 600;
+}
+
+.final {
+  color: #2f855a;
+  font-weight: 600;
+}
+
+/* Error text */
+.error {
+  color: #e53e3e;
+  margin-top: 10px;
+}

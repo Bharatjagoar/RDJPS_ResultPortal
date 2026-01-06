@@ -1,0 +1,72 @@
+.class-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Page title */
+.class-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================
+   CARD CONTAINER (KEY FIX)
+   ========================= */
+.class-cards {
+  display: flex;
+  justify-content: center;     /* Center cards horizontally */
+  align-items: stretch;
+  gap: 25px;
+  width: 100%;
+  max-width: 900px;
+  flex-wrap: wrap;             /* Wrap on small screens */
+}
+
+/* =========================
+   INDIVIDUAL CARD
+   ========================= */
+.class-card {
+  background: white;
+  padding: 35px 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  min-width: 250px;            /* Important for horizontal layout */
+  max-width: 280px;
+  height: 120px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+}
+
+/* Hover animation */
+.class-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  background: #f0f4ff;
+}
+
+/* =========================
+   MOBILE OPTIMIZATION
+   ========================= */
+@media (max-width: 500px) {
+  .class-card {
+    width: 100%;
+    max-width: 100%;
+  }
+}

@@ -1,0 +1,271 @@
+.excel-container {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+.excel-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-align: center;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.5px;
+}
+
+.upload-box {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+input[type="file"] {
+  padding: 16px 24px;
+  border: 2px dashed #667eea;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+input[type="file"]:hover {
+  border-color: #764ba2;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+input[type="file"]::file-selector-button {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.preview-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: #2d3748;
+  letter-spacing: -0.3px;
+}
+
+.edit-toggle-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+}
+
+.edit-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+}
+
+.edit-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.table-container {
+  overflow-x: auto;
+  padding: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.excel-table th,
+.excel-table td {
+  border: 1px solid #e2e8f0;
+  padding: 14px 12px;
+  text-align: left;
+}
+
+.excel-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.excel-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.excel-table tbody tr:nth-child(even) {
+  background-color: #f7fafc;
+}
+
+.excel-table tbody tr:hover {
+  background-color: #edf2f7;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.excel-table input {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #2d3748;
+  font-family: inherit;
+}
+
+.excel-table input.editable {
+  background: #fffaf0;
+  border: 2px solid #ffa500;
+  border-radius: 6px;
+  padding: 6px 8px;
+  transition: all 0.2s ease;
+}
+
+.excel-table input.editable:focus {
+  background: #fff;
+  border-color: #ff8c00;
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+}
+
+.excel-table input.locked {
+  /* cursor: not-allowed; */
+  color: #4a5568;
+}
+
+.details-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.details-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.details-btn:active {
+  transform: translateY(0);
+}
+
+.submit-btn {
+  margin-top: 30px;
+  display: block;
+  padding: 16px 40px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .excel-container {
+    padding: 20px 10px;
+  }
+
+  .excel-title {
+    font-size: 26px;
+    margin-bottom: 25px;
+  }
+
+  .header-controls {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .preview-title {
+    font-size: 20px;
+  }
+
+  .edit-toggle-btn {
+    width: 100%;
+  }
+
+  .excel-table th,
+  .excel-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  input[type="file"] {
+    font-size: 13px;
+    padding: 12px 16px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    font-size: 16px;
+  }
+}

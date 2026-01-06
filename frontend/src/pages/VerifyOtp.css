@@ -1,0 +1,76 @@
+.otp-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f6f7fb;
+}
+
+.otp-box {
+  background: white;
+  padding: 30px 35px;
+  width: 350px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.otp-box h2 {
+  margin-bottom: 10px;
+}
+
+.otp-description {
+  color: #666;
+  font-size: 14px;
+}
+
+.timer {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.timer span {
+  font-weight: bold;
+  color: #ff3e6c;
+}
+
+.otp-input-group input {
+  width: 100%;
+  font-size: 24px;
+  text-align: center;
+  padding: 10px;
+  margin: 20px 0;
+  border-radius: 8px;
+  outline: none;
+  border: 2px solid #ddd;
+  letter-spacing: 10px;
+}
+
+.otp-btn {
+  width: 100%;
+  padding: 10px;
+  background: #4a4aff;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.otp-btn:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+.otp-footer {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #555;
+}
+
+.resend-btn {
+  color: #4a4aff;
+  font-weight: bold;
+  cursor: pointer;
+}
