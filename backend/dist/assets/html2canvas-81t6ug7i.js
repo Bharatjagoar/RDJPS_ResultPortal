@@ -1,0 +1,1 @@
+import{t as e}from"./index-DVpjqMvK.js";export default e();

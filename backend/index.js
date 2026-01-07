@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require("path");
 
 
 // Load environment variables
@@ -39,9 +40,9 @@ const connectDB = async () => {
 connectDB();
 
 // Routes
-app.get('/', (req, res) => {
-  res.json({ message: '🎓 School Results API is running!' });
-});
+// app.get('/', (req, res) => {
+//   res.json({ message: '🎓 School Results API is running!' });
+// });
 
 // API Routes
 app.use('/api/students', studentRoutes);
@@ -51,19 +52,29 @@ app.use("/api/admin", adminROutes)
 app.use("/api/class-verification", classVerificationRoutes);
 
 
-// Error Handling Middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: 'Something went wrong!',
-    error: err.message
-  });
+app.use(express.static(path.join(__dirname, "dist")))
+
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
+
+
+// // Error Handling Middleware
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).json({
+//     message: 'Something went wrong!',
+//     error: err.message
+//   });
+// });
+
 // 404 Handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+// app.use((req, res) => {
+//   res.status(404).json({ message: 'Route not found' });
+// });
+
+console.log("🔥 THIS INDEX.JS IS RUNNING 🔥");
 
 // Start Server
 const PORT = process.env.PORT || 5000;

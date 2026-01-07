@@ -23,18 +23,22 @@ const TempTeacherSchema = new mongoose.Schema({
   password: String,
   otp: String,
 
-  expiresAt: Date,
-  createdAt: {
+  expiresAt: {
     type: Date,
-    default: Date.now
-  }
+    required: true,
+    index: { expires: 0 } // ⭐ THIS is the key
+  },
+  createdAt: {
+  type: Date,
+  default: Date.now
+}
 });
 
 
 // ⭐ Hash password before saving - Modern Mongoose syntax (no next needed)
-TempTeacherSchema.pre("save", async function() {
+TempTeacherSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
-  
+
   this.password = await bcrypt.hash(this.password, 10);
 });
 

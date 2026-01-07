@@ -61,7 +61,7 @@ module.exports.signup = async (req, res) => {
         className,
         section
       },
-      expiresAt: new Date(Date.now() + 3 * 60 * 1000)
+      expiresAt: new Date(Date.now() + ( 10 * 1000 ))
     });
 
     await sendEmail(email, otp);
