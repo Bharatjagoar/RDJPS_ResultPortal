@@ -354,7 +354,7 @@ const ExcelUploadPage = () => {
       const token = localStorage.getItem("authToken");
 
       const response = await axios.post(
-        "http://localhost:5000/api/students/bulk",
+        "http://rdjps-resultportal.onrender.com/api/students/bulk",
         {
           classId: classId,
           students: transformedData,

@@ -17,7 +17,7 @@ const ActivityLogPage = () => {
       const token = localStorage.getItem("authToken");
 
       const res = await axios.get(
-        "http://localhost:5000/api/activity/my",
+        "http://rdjps-resultportal.onrender.com/api/activity/my",
         {
           headers: {
             Authorization: `Bearer ${token}`

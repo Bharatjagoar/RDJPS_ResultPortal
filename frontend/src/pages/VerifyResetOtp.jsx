@@ -29,7 +29,7 @@ const VerifyResetOtp = () => {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/verify-reset-otp",
+        "http://rdjps-resultportal.onrender.com/api/auth/verify-reset-otp",
         { email, otp }
       );
 

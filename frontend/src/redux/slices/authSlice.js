@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = 'http://rdjps-resultportal.onrender.com/api/auth';
 
 // Async thunks
 export const checkAuth = createAsyncThunk(

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/admin"
+  baseURL: "http://rdjps-resultportal.onrender.com/api/admin"
 });
 
 // 🔐 attach token automatically

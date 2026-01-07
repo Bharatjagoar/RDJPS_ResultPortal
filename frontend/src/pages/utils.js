@@ -129,7 +129,7 @@ export const checkUserVerified = async () => {
     if (!token) return false;
     
     // Make API call to check if user is verified
-    const response = await fetch('http://localhost:5000/api/auth/check-status', {
+    const response = await fetch('http://rdjps-resultportal.onrender.com/api/auth/check-status', {
       headers: {
         'Authorization': `Bearer ${token}`
       }

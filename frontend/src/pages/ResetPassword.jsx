@@ -38,7 +38,7 @@ const ResetPassword = () => {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/reset-password",
+        "http://rdjps-resultportal.onrender.com/api/auth/reset-password",
         {
           email,
           newPassword: password

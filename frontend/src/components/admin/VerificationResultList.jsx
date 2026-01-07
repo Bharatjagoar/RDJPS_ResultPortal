@@ -14,7 +14,7 @@ const VerificationResultList = ({ query }) => {
         setError("");
 
         const res = await axios.get(
-          `http://localhost:5000/api/verification/status`,
+          `http://rdjps-resultportal.onrender.com/api/verification/status`,
           {
             params: {
               className: "9",

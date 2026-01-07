@@ -9,7 +9,7 @@ const VerificationTable = ({ records, onRefresh }) => {
       const token = localStorage.getItem("authToken");
     try {
       await axios.put(
-        "http://localhost:5000/api/class-verification/reopen",
+        "http://rdjps-resultportal.onrender.com/api/class-verification/reopen",
         { className, section },
         {
           headers: {

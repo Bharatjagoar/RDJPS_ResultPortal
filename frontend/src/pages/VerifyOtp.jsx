@@ -26,7 +26,7 @@ useEffect(() => {
       // Check if this email is already verified
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/auth/check-status?email=${savedState.email}`
+          `http://rdjps-resultportal.onrender.com/api/auth/check-status?email=${savedState.email}`
         );
         
         if (res.data.isVerified) {
@@ -154,7 +154,7 @@ useEffect(() => {
     try {
       setLoading(true);
 
-      const res = await axios.post("http://localhost:5000/api/auth/verify-otp", {
+      const res = await axios.post("http://rdjps-resultportal.onrender.com/api/auth/verify-otp", {
         email,
         otp,
       });
@@ -191,7 +191,7 @@ useEffect(() => {
       const expiryTime = Date.now() + newTimeLeft * 1000;
       saveOTPState(email, expiryTime);
 
-      await axios.post("http://localhost:5000/api/auth/resend-otp", { email });
+      await axios.post("http://rdjps-resultportal.onrender.com/api/auth/resend-otp", { email });
 
       toast.success("OTP resent successfully!");
       navigate("/login");

@@ -19,7 +19,7 @@ const MarksVerificationTab = () => {
       setLoading(true);
 
       const res = await axios.get(
-        "http://localhost:5000/api/class-verification/status",
+        "http://rdjps-resultportal.onrender.com/api/class-verification/status",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -41,7 +41,7 @@ const MarksVerificationTab = () => {
       setLoading(true);
 
       const res = await axios.get(
-        "http://localhost:5000/api/class-verification/status",
+        "http://rdjps-resultportal.onrender.com/api/class-verification/status",
         {
           params: { className, section },
           headers: {
