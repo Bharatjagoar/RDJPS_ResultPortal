@@ -1,26 +1,35 @@
-const nodemailer = require("nodemailer");
-const dotenv = require("dotenv");
-dotenv.config();
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-module.exports = async (to, otp) => {
+// Configure Brevo client
+const client = SibApiV3Sdk.ApiClient.instance;
+const apiKey = client.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
-  console.log("USER:", process.env.EMAIL_USER);
-  console.log("PASS:", process.env.EMAIL_PASS ? "Loaded" : "Missing");
+const emailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // App password
-    },
-  });
+/**
+ * Generic email sender
+ * @param {string} to
+ * @param {string} subject
+ * @param {string} message
+ */
+const sendEmail = async (to, subject, message) => {
+  try {
+    await emailApi.sendTransacEmail({
+      sender: {
+        email: process.env.EMAIL_FROM,
+        name: "RDJPS Result Portal",
+      },
+      to: [{ email: to }],
+      subject,
+      textContent: message,
+    });
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to,
-    subject: "Your Verification OTP",
-    text: `Your OTP for verification is: ${otp}\nThis OTP expires in 3 minutes.`,
-  };
-
-  return transporter.sendMail(mailOptions);
+    console.log("✅ Email sent to:", to);
+  } catch (err) {
+    console.error("❌ Brevo email error:", err?.response?.text || err.message);
+    throw err;
+  }
 };
+
+module.exports = sendEmail;

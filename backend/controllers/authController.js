@@ -61,10 +61,15 @@ module.exports.signup = async (req, res) => {
         className,
         section
       },
-      expiresAt: new Date(Date.now() + ( 10 * 1000 ))
+      expiresAt: new Date(Date.now() + (3 * 60 * 1000))
     });
 
-    await sendEmail(email, otp);
+    await sendEmail(
+      email,
+      "Your Verification OTP",
+      `Your OTP for verification is: ${otp}\nThis OTP expires in 3 minutes.`
+    );
+
 
     return res.json({
       success: true,
@@ -192,8 +197,10 @@ module.exports.resendOtp = async (req, res) => {
     // send email
     await sendEmail(
       email,
-      `Your new OTP is: ${otp}`
+      "Your New OTP",
+      `Your new OTP is: ${otp}\nThis OTP expires in 3 minutes.`
     );
+
 
     return res.json({
       success: true,
@@ -298,8 +305,8 @@ module.exports.login = async (req, res) => {
         id: teacher._id,
         username: teacher.username,
         email: teacher.email,
-        isAdmin:teacher.isAdmin,
-        classTeacherOf:teacher.classTeacherOf
+        isAdmin: teacher.isAdmin,
+        classTeacherOf: teacher.classTeacherOf
       }
     });
 
@@ -359,10 +366,14 @@ module.exports.forgotPassword = async (req, res) => {
     await PasswordReset.create({
       email,
       otp,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000)
+      expiresAt: new Date(Date.now() + (3 * 60 * 1000))
     });
 
-    await sendEmail(email, `Your password reset OTP is ${otp}`);
+    await sendEmail(
+      email,
+      "Password Reset OTP",
+      `Your password reset OTP is: ${otp}\nThis OTP expires in 10 minutes.`
+    );
 
     return res.json({
       success: true,
