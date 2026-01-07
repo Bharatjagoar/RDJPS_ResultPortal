@@ -3,6 +3,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 import "./ActivityLogPage.css";
+import { api } from "./utils";
 
 const ActivityLogPage = () => {
   const [logs, setLogs] = useState([]);
@@ -16,8 +17,8 @@ const ActivityLogPage = () => {
     try {
       const token = localStorage.getItem("authToken");
 
-      const res = await axios.get(
-        "http://rdjps-resultportal.onrender.com/api/activity/my",
+      const res = await api.get(
+        "/api/activity/my",
         {
           headers: {
             Authorization: `Bearer ${token}`

@@ -1,4 +1,5 @@
 const OTP_STORAGE_KEY = "OTP_STORAGE_KEY";
+import axios from "axios";
 
 // improved transform - uses tableHeaders + filteredIndices (from handleFileUpload)
 const transformDataForBackend = () => {
@@ -220,6 +221,11 @@ const extractClassAndSection = (rawValue) => {
   };
 };
 
+const api = axios.create({
+  baseURL: "/",
+});
 
 
-export {transformDataForBackend,calculateGrade,calculateResultFromSubjects,calculateGrandTotalAndMax,extractClassAndSection};
+
+
+export {transformDataForBackend,calculateGrade,calculateResultFromSubjects,calculateGrandTotalAndMax,extractClassAndSection,api};

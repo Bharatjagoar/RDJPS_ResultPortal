@@ -3,7 +3,7 @@ import "./VerifyOtp.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { saveOTPState, getOTPState, clearOTPState } from "./utils";
+import { saveOTPState, getOTPState, clearOTPState, api } from "./utils";
 
 const VerifyOTP = () => {
   const [otp, setOtp] = useState("");
@@ -25,8 +25,8 @@ useEffect(() => {
     if (savedState) {
       // Check if this email is already verified
       try {
-        const res = await axios.get(
-          `http://rdjps-resultportal.onrender.com/api/auth/check-status?email=${savedState.email}`
+        const res = await api.get(
+          `/api/auth/check-status?email=${savedState.email}`
         );
         
         if (res.data.isVerified) {
@@ -154,7 +154,7 @@ useEffect(() => {
     try {
       setLoading(true);
 
-      const res = await axios.post("http://rdjps-resultportal.onrender.com/api/auth/verify-otp", {
+      const res = await api.post("/api/auth/verify-otp", {
         email,
         otp,
       });
@@ -191,7 +191,7 @@ useEffect(() => {
       const expiryTime = Date.now() + newTimeLeft * 1000;
       saveOTPState(email, expiryTime);
 
-      await axios.post("http://rdjps-resultportal.onrender.com/api/auth/resend-otp", { email });
+      await api.post("/api/auth/resend-otp", { email });
 
       toast.success("OTP resent successfully!");
       navigate("/login");

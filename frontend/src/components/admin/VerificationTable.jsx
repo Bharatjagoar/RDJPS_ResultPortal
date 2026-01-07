@@ -1,5 +1,6 @@
 import axios from "axios";
 import "./VerificationTable.css";
+import { api } from "../../pages/utils";
 
 
 const VerificationTable = ({ records, onRefresh }) => {
@@ -8,8 +9,8 @@ const VerificationTable = ({ records, onRefresh }) => {
 
       const token = localStorage.getItem("authToken");
     try {
-      await axios.put(
-        "http://rdjps-resultportal.onrender.com/api/class-verification/reopen",
+      await api.put(
+        "/api/class-verification/reopen",
         { className, section },
         {
           headers: {

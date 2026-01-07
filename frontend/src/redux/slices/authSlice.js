@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { api } from '../../pages/utils';
 
 const API_URL = 'http://rdjps-resultportal.onrender.com/api/auth';
 
@@ -14,7 +15,7 @@ export const checkAuth = createAsyncThunk(
         return rejectWithValue('No token found');
       }
 
-      const response = await axios.get(`${API_URL}/me`, {
+      const response = await api.get(`/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -31,7 +32,7 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/login`, credentials);
+      const response = await api.post(`/api/auth/login`, credentials);
       
       if (response.data.success) {
         localStorage.setItem('authToken', response.data.token);
@@ -50,7 +51,7 @@ export const verifyOTP = createAsyncThunk(
   'auth/verifyOTP',
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/verify-otp`, { email, otp });
+      const response = await api.post(`/api/auth/verify-otp`, { email, otp });
       
       if (response.data.success) {
         localStorage.setItem('authToken', response.data.token);

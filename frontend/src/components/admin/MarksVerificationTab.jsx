@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ClassSectionSearch from "./ClassSectionSearch";
 import VerificationTable from "./VerificationTable";
-
+import { api } from "../../pages/utils";
 const MarksVerificationTab = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,8 +18,8 @@ const MarksVerificationTab = () => {
     try {
       setLoading(true);
 
-      const res = await axios.get(
-        "http://rdjps-resultportal.onrender.com/api/class-verification/status",
+      const res = await api.get(
+        "/api/class-verification/status",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -40,8 +40,8 @@ const MarksVerificationTab = () => {
     try {
       setLoading(true);
 
-      const res = await axios.get(
-        "http://rdjps-resultportal.onrender.com/api/class-verification/status",
+      const res = await api.get(
+        "/api/class-verification/status",
         {
           params: { className, section },
           headers: {

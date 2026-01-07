@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./VerificationResultList.css";
+import { api } from "../../pages/utils";
 
 const VerificationResultList = ({ query }) => {
   const [data, setData] = useState(null);
@@ -13,8 +14,8 @@ const VerificationResultList = ({ query }) => {
         setLoading(true);
         setError("");
 
-        const res = await axios.get(
-          `http://rdjps-resultportal.onrender.com/api/verification/status`,
+        const res = await api.get(
+          `/api/verification/status`,
           {
             params: {
               className: "9",

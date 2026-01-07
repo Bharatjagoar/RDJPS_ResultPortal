@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "./ResetPassword.css";
+import { api } from "./utils";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -37,8 +38,8 @@ const ResetPassword = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        "http://rdjps-resultportal.onrender.com/api/auth/reset-password",
+      const res = await api.post(
+        "/api/auth/reset-password",
         {
           email,
           newPassword: password

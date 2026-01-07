@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import OtpInput from "../components/OtpInput";
 import "./VerifyResetOtp.css";
+import { api } from "./utils";
 
 const VerifyResetOtp = () => {
   const [otp, setOtp] = useState("");
@@ -28,8 +29,8 @@ const VerifyResetOtp = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        "http://rdjps-resultportal.onrender.com/api/auth/verify-reset-otp",
+      const res = await api.post(
+        "/api/auth/verify-reset-otp",
         { email, otp }
       );
 

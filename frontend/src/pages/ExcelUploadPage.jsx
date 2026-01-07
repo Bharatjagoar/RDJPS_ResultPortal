@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 // import { transformDataForBackend } from "./utils";
 import { useNavigate } from "react-router-dom";
-import { extractClassAndSection } from "./utils";
+import { api, extractClassAndSection } from "./utils";
 
 
 const formatDateDDMMYYYY = (dateObj) => {
@@ -353,8 +353,8 @@ const ExcelUploadPage = () => {
     try {
       const token = localStorage.getItem("authToken");
 
-      const response = await axios.post(
-        "http://rdjps-resultportal.onrender.com/api/students/bulk",
+      const response = await api.post(
+        "/api/students/bulk",
         {
           classId: classId,
           students: transformedData,
