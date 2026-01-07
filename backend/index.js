@@ -28,6 +28,7 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
 // MongoDB Connection
 const connectDB = async () => {
   try {
+    console.log(process.env.MONGO_URI);
     const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(process.env.MONGO_URI);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
