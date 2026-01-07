@@ -9,7 +9,7 @@ import { generateReportCard } from "../utils/generateReportCard.jsx";
 import ReportCard from "../components/ReportCard";
 import html2pdf from "html2pdf.js";
 import { useRef } from "react";
-import { api } from "./utils.js";
+// import { api } from "./utils.js";
 
 
 import { calculateGrandTotalAndMax, calculateGrade, calculateResultFromSubjects, api } from "./utils.js";
