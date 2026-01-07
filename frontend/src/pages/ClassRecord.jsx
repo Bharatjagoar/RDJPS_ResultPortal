@@ -161,7 +161,7 @@ const ClassRecordsPage = () => {
         const token = localStorage.getItem("authToken");
 
         const res = await api.get(
-          "http://rdjps-resultportal.onrender.com/api/class-verification/status",
+          "/api/class-verification/status",
           {
             params: { className: classId, section },
             headers: {

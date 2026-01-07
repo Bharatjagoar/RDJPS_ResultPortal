@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./SignUpTeacher.css";
 import { useNavigate } from "react-router-dom";
+import { api } from "./utils";
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -26,8 +27,8 @@ const Signup = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await fetch("http://rdjps-resultportal.onrender.com/api/auth/admin-exists");
-        const data = await res.json();
+        const res = await api.get("/api/auth/admin-exists");
+        const data = res.data;
         setAdminExists(data.adminExists);
       } catch (err) {
         console.error("Failed to check admin status");
@@ -91,20 +92,16 @@ const Signup = () => {
     }
 
     try {
-      const res = await fetch("http://rdjps-resultportal.onrender.com/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: form.username,
-          email: form.email,
-          password: form.password,
-          className: form.className,
-          section: form.section,
-          isAdmin: !adminExists && isAdmin
-        }),
+      const res = await api.post("/api/auth/signup", {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        className: form.className,
+        section: form.section,
+        isAdmin: !adminExists && isAdmin,
       });
 
-      const data = await res.json();
+      const data = res.data;
 
       if (!data.success) {
         setError(data.message || "Something went wrong");
