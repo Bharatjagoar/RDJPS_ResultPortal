@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
 const connectDB = async () => {
   try {
     console.log(process.env.MONGO_URI);
-    const conn = await mongoose.connect(process.env.MONGO_URI + "/schoolDB");
+    const conn = await mongoose.connect(process.env.MONGO_URI);
     // console.log(process.env.MONGO_URI);
     console.log(`✅ MongoDB Connected to school DB`);
   } catch (error) {
@@ -83,4 +83,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  // console.log("Connected DB:", mongoose.connection.name);
+  
 });

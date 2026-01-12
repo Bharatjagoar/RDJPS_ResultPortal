@@ -265,7 +265,7 @@ module.exports.checkStatus = async (req, res) => {
 module.exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password);
+    console.log(email, password,"hellow");
     // Validate input
     if (!email || !password) {
       return res.status(400).json({
@@ -276,7 +276,7 @@ module.exports.login = async (req, res) => {
 
     // Find teacher
     const teacher = await Teacher.findOne({ email });
-
+    console.log(teacher);
     if (!teacher) {
       return res.status(401).json({
         success: false,

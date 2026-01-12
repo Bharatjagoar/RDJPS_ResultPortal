@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 
 function App() {
+  console.log(import.meta.env.MODE);
   return (
     <Provider store={store}>
       <BrowserRouter>

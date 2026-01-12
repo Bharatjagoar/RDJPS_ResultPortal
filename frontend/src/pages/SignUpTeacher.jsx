@@ -20,6 +20,7 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showCNFPassword, setShowCNFPassword] = useState(false);
+  const isRegisteringAsAdmin = !adminExists && isAdmin;
 
   const navigate = useNavigate();
 
@@ -37,6 +38,17 @@ const Signup = () => {
 
     checkAdmin();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      setForm((prev) => ({
+        ...prev,
+        className: "",
+        section: ""
+      }));
+    }
+  }, [isAdmin]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,6 +77,9 @@ const Signup = () => {
     setLoading(true);
     setError("");
 
+    const isRegisteringAsAdmin = !adminExists && isAdmin;
+
+    // Password checks (for everyone)
     if (form.password !== form.Confirmpassword) {
       setError("Passwords do not match!");
       setLoading(false);
@@ -77,18 +92,21 @@ const Signup = () => {
       return;
     }
 
-    const classNum = Number(form.className);
+    // 🔥 ONLY validate class & section if NOT admin
+    if (!isRegisteringAsAdmin) {
+      const classNum = Number(form.className);
 
-    if (isNaN(classNum) || classNum < 1 || classNum > 12) {
-      setError("Class must be a number between 1 and 12");
-      setLoading(false);
-      return;
-    }
+      if (isNaN(classNum) || classNum < 1 || classNum > 12) {
+        setError("Class must be a number between 1 and 12");
+        setLoading(false);
+        return;
+      }
 
-    if (!form.className || !form.section) {
-      setError("Class and Section / Stream are required");
-      setLoading(false);
-      return;
+      if (!form.className || !form.section) {
+        setError("Class and Section / Stream are required");
+        setLoading(false);
+        return;
+      }
     }
 
     try {
@@ -96,15 +114,13 @@ const Signup = () => {
         username: form.username,
         email: form.email,
         password: form.password,
-        className: form.className,
-        section: form.section,
-        isAdmin: !adminExists && isAdmin,
+        className: isRegisteringAsAdmin ? null : form.className,
+        section: isRegisteringAsAdmin ? null : form.section,
+        isAdmin: isRegisteringAsAdmin,
       });
 
-      const data = res.data;
-
-      if (!data.success) {
-        setError(data.message || "Something went wrong");
+      if (!res.data.success) {
+        setError(res.data.message || "Something went wrong");
         setLoading(false);
         return;
       }

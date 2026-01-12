@@ -5,11 +5,12 @@ import { toast } from "react-toastify";
 import "./ForgotPassword.css";
 import { api } from "./utils";
 
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  
   const handleSendOtp = async () => {
     if (!email) {
       toast.error("Please enter your registered email");
