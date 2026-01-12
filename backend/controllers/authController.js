@@ -12,7 +12,8 @@ module.exports.signup = async (req, res) => {
   try {
     const { username, email, password, isAdmin, className, section } = req.body;
 
-    if (!className || !section) {
+    if (!isAdmin && (!className || !section)) {
+      console.log("class and section not found ")
       return res.status(400).json({
         success: false,
         message: "Class and Section are required"
@@ -24,6 +25,7 @@ module.exports.signup = async (req, res) => {
     const existingTemp = await TempTeacher.findOne({ email });
 
     if (existingTeacher || existingTemp) {
+      console.log("teacher aleready there")
       return res.status(400).json({
         success: false,
         message: "Email already exists"
@@ -42,6 +44,7 @@ module.exports.signup = async (req, res) => {
     });
 
     if (classTeacherExists) {
+      console.log("class teacher already there !! ");
       return res.status(400).json({
         success: false,
         message: "Class teacher already assigned for this class"
