@@ -10,11 +10,15 @@ const TempTeacherSchema = new mongoose.Schema({
   classTeacherOf: {
     className: {
       type: String,
-      required: true
+      required: function () {
+        return !this.isAdmin;
+      }
     },
     section: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.isAdmin;
+      },
       uppercase: true,
       trim: true
     }
@@ -29,9 +33,9 @@ const TempTeacherSchema = new mongoose.Schema({
     index: { expires: 0 } // ⭐ THIS is the key
   },
   createdAt: {
-  type: Date,
-  default: Date.now
-}
+    type: Date,
+    default: Date.now
+  }
 });
 
 

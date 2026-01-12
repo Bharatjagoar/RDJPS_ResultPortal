@@ -40,7 +40,7 @@ module.exports.signup = async (req, res) => {
     // Ensure only ONE class teacher per class+section
     const classTeacherExists = await Teacher.findOne({
       "classTeacherOf.className": className,
-      "classTeacherOf.section": section.toUpperCase()
+      "classTeacherOf.section": section?.toUpperCase()
     });
 
     if (classTeacherExists) {
