@@ -109,6 +109,7 @@ const Signup = () => {
       }
     }
 
+    console.log("Axios baseURL:", api.defaults.baseURL);
     try {
       const res = await api.post("/api/auth/signup", {
         username: form.username,
