@@ -222,7 +222,7 @@ const extractClassAndSection = (rawValue) => {
 };
 
 const api = axios.create({
-  baseURL: import.meta.env.MODE=="development"?"http://localhost:5000/":"/",
+  baseURL: import.meta.env.MODE=="development"?"http://localhost:5000/":"https://rdjps-resultportal.onrender.com/",
 });
 
 
