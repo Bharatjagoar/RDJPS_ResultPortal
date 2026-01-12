@@ -24,16 +24,20 @@ const TeacherSchema = new mongoose.Schema({
   // ⭐ NEW: Class Teacher Assignment
   classTeacherOf: {
     className: {
-      type: String, // e.g. "9"
-      required: true
+      type: String,
+      required: function () {
+        return !this.isAdmin;
+      }
     },
     section: {
-      type: String, // e.g. "C"
-      required: true,
+      type: String,
+      required: function () {
+        return !this.isAdmin;
+      },
       uppercase: true,
       trim: true
     }
-  },
+  },,
 
   password: {
     type: String,
