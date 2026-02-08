@@ -31,7 +31,7 @@ const Signup = () => {
         const data = await res.data;
         setAdminExists(data.adminExists);
       } catch (err) {
-        console.error("Failed to check admin status",err );
+        console.error("Failed to check admin status", err);
       }
     };
 
@@ -95,20 +95,16 @@ const Signup = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: form.username,
-          email: form.email,
-          password: form.password,
-          className: form.className,
-          section: form.section,
-          isAdmin: !adminExists && isAdmin
-        }),
+      const res = await api.post("/auth/signup", {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        className: form.className,
+        section: form.section,
+        isAdmin: !adminExists && isAdmin,
       });
 
-      const data = await res.json();
+      const data = res.data;
 
       if (!data.success) {
         setError(data.message || "Something went wrong");
@@ -118,7 +114,10 @@ const Signup = () => {
 
       navigate("/verify-otp", { state: { email: form.email } });
     } catch (err) {
-      setError("Server error, please try again later.");
+      console.error(err);
+      setError(
+        err.response?.data?.message || "Server error, please try again later."
+      );
     }
 
     setLoading(false);

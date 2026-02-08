@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 
 function App() {
+  console.log("if its development :: ",import.meta.env.MODE=="development");
   console.log(import.meta.env.MODE)
   return (
     <Provider store={store}>
