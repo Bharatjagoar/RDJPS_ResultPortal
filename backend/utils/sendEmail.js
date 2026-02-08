@@ -14,6 +14,7 @@ const emailApi = new SibApiV3Sdk.TransactionalEmailsApi();
  * @param {string} message
  */
 const sendEmail = async (to, subject, message) => {
+  console.log(to, process.env.EMAIL_FROM)
   try {
     await emailApi.sendTransacEmail({
       sender: {

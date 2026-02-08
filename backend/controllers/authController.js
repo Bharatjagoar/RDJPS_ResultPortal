@@ -66,7 +66,7 @@ module.exports.signup = async (req, res) => {
       },
       expiresAt: new Date(Date.now() + (3 * 60 * 1000))
     });
-
+    console.log("sending email for otp ");
     await sendEmail(
       email,
       "Your Verification OTP",

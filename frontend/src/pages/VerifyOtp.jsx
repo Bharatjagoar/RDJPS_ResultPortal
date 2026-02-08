@@ -162,13 +162,13 @@ const VerifyOTP = () => {
         email,
         otp,
       });
-
+      console.log(res.data.user);
       if (res.data.success) {
         // Save auth token if provided
         if (res.data.token) {
           localStorage.setItem('authToken', res.data.token);
         }
-
+        localStorage.setItem("user", JSON.stringify(res.data.user));
         // Clear OTP state after successful verification
         await clearOTPState();
 
@@ -198,7 +198,7 @@ const VerifyOTP = () => {
       await api.post("http://localhost:5000/api/auth/resend-otp", { email });
 
       toast.success("OTP resent successfully!");
-      navigate("/login");
+      // navigate("/login");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to resend OTP");
     }

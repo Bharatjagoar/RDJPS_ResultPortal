@@ -75,19 +75,22 @@ const Signup = () => {
       setLoading(false);
       return;
     }
+    // Only validate class & section if NOT admin signup
+    const isAdminSignup = !adminExists && isAdmin;
 
-    const classNum = Number(form.className);
+    if (!isAdminSignup) {
+      if (!form.className || !form.section) {
+        setError("Class and Section / Stream are required");
+        setLoading(false);
+        return;
+      }
 
-    if (isNaN(classNum) || classNum < 1 || classNum > 12) {
-      setError("Class must be a number between 1 and 12");
-      setLoading(false);
-      return;
-    }
-
-    if (!form.className || !form.section) {
-      setError("Class and Section / Stream are required");
-      setLoading(false);
-      return;
+      const classNum = Number(form.className);
+      if (isNaN(classNum) || classNum < 1 || classNum > 12) {
+        setError("Class must be a number between 1 and 12");
+        setLoading(false);
+        return;
+      }
     }
 
     try {
