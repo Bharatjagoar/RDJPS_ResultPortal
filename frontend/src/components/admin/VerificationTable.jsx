@@ -10,7 +10,7 @@ const VerificationTable = ({ records, onRefresh }) => {
       const token = localStorage.getItem("authToken");
     try {
       await api.put(
-        "http://localhost:5000/api/class-verification/reopen",
+        "/class-verification/reopen",
         { className, section },
         {
           headers: {

@@ -30,7 +30,7 @@ const VerifyResetOtp = () => {
       setLoading(true);
 
       const res = await api.post(
-        "http://localhost:5000/api/auth/verify-reset-otp",
+        "/auth/verify-reset-otp",
         { email, otp }
       );
 

@@ -39,7 +39,7 @@ const ResetPassword = () => {
       setLoading(true);
 
       const res = await api.post(
-        "http://localhost:5000/api/auth/reset-password",
+        "/auth/reset-password",
         {
           email,
           newPassword: password

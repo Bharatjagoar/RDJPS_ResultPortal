@@ -27,7 +27,7 @@ const VerifyOTP = () => {
         // Check if this email is already verified
         try {
           const res = await api.get(
-            `http://localhost:5000/api/auth/check-status?email=${savedState.email}`
+            `/auth/check-status?email=${savedState.email}`
           );
 
           if (res.data.isVerified) {
@@ -158,7 +158,7 @@ const VerifyOTP = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("http://localhost:5000/api/auth/verify-otp", {
+      const res = await api.post("/auth/verify-otp", {
         email,
         otp,
       });

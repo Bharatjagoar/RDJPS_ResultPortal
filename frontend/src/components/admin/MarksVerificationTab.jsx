@@ -20,7 +20,7 @@ const MarksVerificationTab = () => {
       setLoading(true);
 
       const res = await api.get(
-        "http://localhost:5000/api/class-verification/status",
+        "/class-verification/status",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -42,7 +42,7 @@ const MarksVerificationTab = () => {
       setLoading(true);
 
       const res = await api.get(
-        "http://localhost:5000/api/class-verification/status",
+        "/class-verification/status",
         {
           params: { className, section },
           headers: {

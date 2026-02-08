@@ -26,7 +26,7 @@ const Signup = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/admin-exists");
+        const res = await api.get("/auth/admin-exists");
         const data = await res.json();
         setAdminExists(data.adminExists);
       } catch (err) {

@@ -15,7 +15,7 @@ const VerificationResultList = ({ query }) => {
         setError("");
 
         const res = await api.get(
-          `http://localhost:5000/api/verification/status`,
+          `/verification/status`,
           {
             params: {
               className: "9",

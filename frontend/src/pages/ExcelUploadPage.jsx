@@ -355,7 +355,7 @@ const ExcelUploadPage = () => {
       const token = localStorage.getItem("authToken");
 
       const response = await api.post(
-        "http://localhost:5000/api/students/bulk",
+        "/students/bulk",
         {
           classId: classId,
           students: transformedData,

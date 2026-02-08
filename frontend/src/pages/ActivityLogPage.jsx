@@ -18,7 +18,7 @@ const ActivityLogPage = () => {
       const token = localStorage.getItem("authToken");
 
       const res = await api.get(
-        "http://localhost:5000/api/activity/my",
+        "/activity/my",
         {
           headers: {
             Authorization: `Bearer ${token}`
