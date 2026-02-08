@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import "./VerifyOtp.css";
+import "./VerifyOTP.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { api } from "./utils";
 import { toast } from "react-toastify";
-import { saveOTPState, getOTPState, clearOTPState, api } from "./utils";
+import { saveOTPState, getOTPState, clearOTPState } from "./utils";
 
 const VerifyOTP = () => {
   const [otp, setOtp] = useState("");
@@ -17,114 +18,117 @@ const VerifyOTP = () => {
 
   // ⭐ Initialize: Check for existing OTP state or new signup
   // ⭐ Initialize: Check for existing OTP state or new signup
-useEffect(() => {
-  const initialize = async () => {
-    // Try to restore OTP state from localStorage
-    const savedState = getOTPState();
-    
-    if (savedState) {
-      // Check if this email is already verified
-      try {
-        const res = await api.get(
-          `/api/auth/check-status?email=${savedState.email}`
-        );
-        
-        if (res.data.isVerified) {
-          clearOTPState();
-          toast.info("You're already verified! Please login.");
-          navigate("/login");
-          return;
-        }
-        
-        // ⭐ Check if this is a new signup or a page refresh
-        if (state?.email) {
-          // Coming from signup page (fresh navigation)
-          setEmail(state.email);
-          const expiryTime = Date.now() + 180000; // 3 minutes from now
-          saveOTPState(state.email, expiryTime);
-          setTimeLeft(180);
-          // Don't show "restored" message - this is a new signup
-        } else {
-          // No state from navigation = page refresh/reload
-          if (res.data.hasPendingOTP) {
-            setEmail(savedState.email);
-            setTimeLeft(savedState.timeLeft);
-            toast.info("OTP verification session restored"); // ✅ Only show here
-          } else {
-            // No pending OTP - redirect to signup
-            clearOTPState();
-            toast.error("OTP session expired. Please sign up again.");
-            navigate("/signup");
+  useEffect(() => {
+    const initialize = async () => {
+      // Try to restore OTP state from localStorage
+      const savedState = getOTPState();
+
+      if (savedState) {
+        // Check if this email is already verified
+        try {
+          const res = await api.get(
+            `http://localhost:5000/api/auth/check-status?email=${savedState.email}`
+          );
+
+          if (res.data.isVerified) {
+            await clearOTPState();
+            toast.info("You're already verified! Please login.");
+            navigate("/login");
             return;
           }
+
+          // ⭐ Check if this is a new signup or a page refresh
+          if (state?.email) {
+            // Coming from signup page (fresh navigation)
+            setEmail(state.email);
+            const expiryTime = Date.now() + 180000; // 3 minutes from now
+            saveOTPState(state.email, expiryTime);
+            setTimeLeft(180);
+            // Don't show "restored" message - this is a new signup
+          } else {
+            // No state from navigation = page refresh/reload
+            if (res.data.hasPendingOTP) {
+              setEmail(savedState.email);
+              setTimeLeft(savedState.timeLeft);
+              toast.info("OTP verification session restored"); // ✅ Only show here
+            } else {
+              // No pending OTP - redirect to signup
+              await clearOTPState();
+              toast.error("OTP session expired. Please sign up again.");
+              navigate("/signup");
+              return;
+            }
+          }
+        } catch (err) {
+          console.error("Status check failed:", err);
+
+          // ⭐ Even on error, check if coming from signup
+          if (state?.email) {
+            // Fresh signup
+            setEmail(state.email);
+            const expiryTime = Date.now() + 180000;
+            saveOTPState(state.email, expiryTime);
+            setTimeLeft(180);
+          } else {
+            // Page refresh - restore saved state
+            setEmail(savedState.email);
+            setTimeLeft(savedState.timeLeft);
+            toast.info("OTP verification session restored");
+          }
         }
-      } catch (err) {
-        console.error("Status check failed:", err);
-        
-        // ⭐ Even on error, check if coming from signup
-        if (state?.email) {
-          // Fresh signup
-          setEmail(state.email);
-          const expiryTime = Date.now() + 180000;
-          saveOTPState(state.email, expiryTime);
-          setTimeLeft(180);
-        } else {
-          // Page refresh - restore saved state
-          setEmail(savedState.email);
-          setTimeLeft(savedState.timeLeft);
-          toast.info("OTP verification session restored");
-        }
+      } else if (state?.email) {
+        // New signup flow (no saved state exists)
+        setEmail(state.email);
+        const expiryTime = Date.now() + 180000; // 3 minutes from now
+        saveOTPState(state.email, expiryTime);
+        setTimeLeft(180);
+      } else {
+        // No valid state - redirect to signup
+        toast.error("Please sign up first");
+        navigate("/signup");
+        return;
       }
-    } else if (state?.email) {
-      // New signup flow (no saved state exists)
-      setEmail(state.email);
-      const expiryTime = Date.now() + 180000; // 3 minutes from now
-      saveOTPState(state.email, expiryTime);
-      setTimeLeft(180);
-    } else {
-      // No valid state - redirect to signup
-      toast.error("Please sign up first");
-      navigate("/signup");
-      return;
-    }
 
-    setIsInitialized(true);
-  };
+      setIsInitialized(true);
+    };
 
-  initialize();
-}, [state, navigate]);
+    initialize();
+  }, [state, navigate]);
 
   // ⭐ Timer logic with persistence
   useEffect(() => {
     if (!isInitialized || !email) return;
+    let timer;
+    const timefunction = async () => {
+      if (timeLeft <= 0) {
+        await clearOTPState();
+        toast.error("OTP expired. Please sign up again.");
+        navigate("/signup");
+        return;
+      }
+      
+      timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          const newTime = prev - 1;
 
-    if (timeLeft <= 0) {
-      clearOTPState();
-      toast.error("OTP expired. Please sign up again.");
-      navigate("/signup");
-      return;
+          // Update localStorage every second
+          if (email) {
+            const expiryTime = Date.now() + newTime * 1000;
+            saveOTPState(email, expiryTime);
+          }
+
+          return newTime;
+        });
+      }, 1000);
+
     }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        const newTime = prev - 1;
-        
-        // Update localStorage every second
-        if (email) {
-          const expiryTime = Date.now() + newTime * 1000;
-          saveOTPState(email, expiryTime);
-        }
-        
-        return newTime;
-      });
-    }, 1000);
-
+    timefunction();
     return () => clearInterval(timer);
   }, [timeLeft, email, isInitialized, navigate]);
 
   // ⭐ Cleanup on unmount (when leaving page intentionally)
   useEffect(() => {
-    return () => {
+    return async () => {
       // Don't clear if navigating to success
       const currentPath = window.location.pathname;
       if (currentPath === "/verify-otp") {
@@ -132,7 +136,7 @@ useEffect(() => {
         return;
       }
       // If navigating away (back button, etc), clear state
-      clearOTPState();
+      await clearOTPState();
     };
   }, []);
 
@@ -154,7 +158,7 @@ useEffect(() => {
     try {
       setLoading(true);
 
-      const res = await api.post("/api/auth/verify-otp", {
+      const res = await api.post("http://localhost:5000/api/auth/verify-otp", {
         email,
         otp,
       });
@@ -164,10 +168,10 @@ useEffect(() => {
         if (res.data.token) {
           localStorage.setItem('authToken', res.data.token);
         }
-        
+
         // Clear OTP state after successful verification
-        clearOTPState();
-        
+        await clearOTPState();
+
         toast.success("Account verified successfully!");
         navigate("/login");
       } else {
@@ -191,7 +195,7 @@ useEffect(() => {
       const expiryTime = Date.now() + newTimeLeft * 1000;
       saveOTPState(email, expiryTime);
 
-      await api.post("/api/auth/resend-otp", { email });
+      await api.post("http://localhost:5000/api/auth/resend-otp", { email });
 
       toast.success("OTP resent successfully!");
       navigate("/login");
@@ -246,10 +250,10 @@ useEffect(() => {
             Resend
           </span>
         </p>
-        
+
         <p className="otp-footer">
-          <span onClick={() => {
-            clearOTPState();
+          <span onClick={async () => {
+            await clearOTPState();
             navigate("/signup");
           }} className="back-link">
             ← Back to Signup

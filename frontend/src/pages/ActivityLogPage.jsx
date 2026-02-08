@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { api } from "./utils";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 import "./ActivityLogPage.css";
-import { api } from "./utils";
 
 const ActivityLogPage = () => {
   const [logs, setLogs] = useState([]);
@@ -18,7 +18,7 @@ const ActivityLogPage = () => {
       const token = localStorage.getItem("authToken");
 
       const res = await api.get(
-        "/api/activity/my",
+        "http://localhost:5000/api/activity/my",
         {
           headers: {
             Authorization: `Bearer ${token}`

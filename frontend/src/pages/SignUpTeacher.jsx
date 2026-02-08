@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./SignUpTeacher.css";
 import { useNavigate } from "react-router-dom";
-import { api } from "./utils";
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -20,7 +19,6 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showCNFPassword, setShowCNFPassword] = useState(false);
-  const isRegisteringAsAdmin = !adminExists && isAdmin;
 
   const navigate = useNavigate();
 
@@ -28,8 +26,8 @@ const Signup = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await api.get("/api/auth/admin-exists");
-        const data = res.data;
+        const res = await fetch("http://localhost:5000/api/auth/admin-exists");
+        const data = await res.json();
         setAdminExists(data.adminExists);
       } catch (err) {
         console.error("Failed to check admin status");
@@ -38,17 +36,6 @@ const Signup = () => {
 
     checkAdmin();
   }, []);
-
-  useEffect(() => {
-    if (isAdmin) {
-      setForm((prev) => ({
-        ...prev,
-        className: "",
-        section: ""
-      }));
-    }
-  }, [isAdmin]);
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,9 +64,6 @@ const Signup = () => {
     setLoading(true);
     setError("");
 
-    const isRegisteringAsAdmin = !adminExists && isAdmin;
-
-    // Password checks (for everyone)
     if (form.password !== form.Confirmpassword) {
       setError("Passwords do not match!");
       setLoading(false);
@@ -92,36 +76,38 @@ const Signup = () => {
       return;
     }
 
-    // 🔥 ONLY validate class & section if NOT admin
-    if (!isRegisteringAsAdmin) {
-      const classNum = Number(form.className);
+    const classNum = Number(form.className);
 
-      if (isNaN(classNum) || classNum < 1 || classNum > 12) {
-        setError("Class must be a number between 1 and 12");
-        setLoading(false);
-        return;
-      }
-
-      if (!form.className || !form.section) {
-        setError("Class and Section / Stream are required");
-        setLoading(false);
-        return;
-      }
+    if (isNaN(classNum) || classNum < 1 || classNum > 12) {
+      setError("Class must be a number between 1 and 12");
+      setLoading(false);
+      return;
     }
 
-    console.log("Axios baseURL:", api.defaults.baseURL);
+    if (!form.className || !form.section) {
+      setError("Class and Section / Stream are required");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await api.post("/api/auth/signup", {
-        username: form.username,
-        email: form.email,
-        password: form.password,
-        className: isRegisteringAsAdmin ? null : form.className,
-        section: isRegisteringAsAdmin ? null : form.section,
-        isAdmin: isRegisteringAsAdmin,
+      const res = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username,
+          email: form.email,
+          password: form.password,
+          className: form.className,
+          section: form.section,
+          isAdmin: !adminExists && isAdmin
+        }),
       });
 
-      if (!res.data.success) {
-        setError(res.data.message || "Something went wrong");
+      const data = await res.json();
+
+      if (!data.success) {
+        setError(data.message || "Something went wrong");
         setLoading(false);
         return;
       }

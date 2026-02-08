@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { api } from "../../pages/utils";
 import ClassSectionSearch from "./ClassSectionSearch";
 import VerificationTable from "./VerificationTable";
-import { api } from "../../pages/utils";
+
 const MarksVerificationTab = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ const MarksVerificationTab = () => {
       setLoading(true);
 
       const res = await api.get(
-        "/api/class-verification/status",
+        "http://localhost:5000/api/class-verification/status",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -41,7 +42,7 @@ const MarksVerificationTab = () => {
       setLoading(true);
 
       const res = await api.get(
-        "/api/class-verification/status",
+        "http://localhost:5000/api/class-verification/status",
         {
           params: { className, section },
           headers: {

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { api } from "./utils";
 import { toast } from "react-toastify";
 import OtpInput from "../components/OtpInput";
 import "./VerifyResetOtp.css";
-import { api } from "./utils";
 
 const VerifyResetOtp = () => {
   const [otp, setOtp] = useState("");
@@ -30,7 +30,7 @@ const VerifyResetOtp = () => {
       setLoading(true);
 
       const res = await api.post(
-        "/api/auth/verify-reset-otp",
+        "http://localhost:5000/api/auth/verify-reset-otp",
         { email, otp }
       );
 

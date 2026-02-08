@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "./VerificationResultList.css";
 import { api } from "../../pages/utils";
+import "./VerificationResultList.css";
 
 const VerificationResultList = ({ query }) => {
   const [data, setData] = useState(null);
@@ -15,7 +15,7 @@ const VerificationResultList = ({ query }) => {
         setError("");
 
         const res = await api.get(
-          `/api/verification/status`,
+          `http://localhost:5000/api/verification/status`,
           {
             params: {
               className: "9",

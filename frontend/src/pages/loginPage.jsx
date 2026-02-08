@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { api } from "./utils";
 import { toast } from "react-toastify";
 import "./Login.css"; // Create this CSS file
-import { api } from "./utils";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/api/auth/login", formData);
+      const res = await api.post("http://localhost:5000/api/auth/login", formData);
 
       if (res.data.success) {
         // Save token to localStorage

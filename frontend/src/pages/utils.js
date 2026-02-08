@@ -1,6 +1,15 @@
 const OTP_STORAGE_KEY = "OTP_STORAGE_KEY";
 import axios from "axios";
 
+
+
+
+const api = axios.create({
+  baseURL: import.meta.env.MODE=="development"?"http://localhost:5000/api":"https://rdjps-resultportal.onrender.com/api",
+});
+
+
+
 // improved transform - uses tableHeaders + filteredIndices (from handleFileUpload)
 const transformDataForBackend = () => {
   // tableHeaders and filteredIndices are from state
@@ -42,7 +51,7 @@ const transformDataForBackend = () => {
       if (h.includes(" total")) {
         const orig = tableHeaders[idx];
         // get subject name by removing trailing " Total"
-        const subjectName = orig.replace(/[\s]*[Tt]otal$/, '').trim();
+        const subjectName = orig.replace(/[\s]*[Tt]otal$/,'').trim();
         if (!subjectName) return;
 
         // find internals/mid/final columns for the same subject
@@ -50,10 +59,10 @@ const transformDataForBackend = () => {
         const maybeMidIndex = headerLower.findIndex(x => x.includes(subjectName.toLowerCase()) && (x.includes("mid") || x.includes("(30)")));
         const maybeFinalIndex = headerLower.findIndex(x => x.includes(subjectName.toLowerCase()) && (x.includes("final") || x.includes("(50)") || x.includes("end")));
 
-        const totalVal = row[filteredIndices[idx]];
-        const internalsVal = maybeInternalsIndex === -1 ? null : row[filteredIndices[maybeInternalsIndex]];
-        const midVal = maybeMidIndex === -1 ? null : row[filteredIndices[maybeMidIndex]];
-        const finalVal = maybeFinalIndex === -1 ? null : row[filteredIndices[maybeFinalIndex]];
+        const totalVal = row[ filteredIndices[idx] ];
+        const internalsVal = maybeInternalsIndex === -1 ? null : row[ filteredIndices[maybeInternalsIndex] ];
+        const midVal = maybeMidIndex === -1 ? null : row[ filteredIndices[maybeMidIndex] ];
+        const finalVal = maybeFinalIndex === -1 ? null : row[ filteredIndices[maybeFinalIndex] ];
 
         const internalsN = internalsVal === "" || internalsVal == null ? null : parseFloat(internalsVal) || 0;
         const midN = midVal === "" || midVal == null ? null : parseFloat(midVal) || 0;
@@ -75,7 +84,7 @@ const transformDataForBackend = () => {
 
     // try to get grand total (maybe last numeric column in filteredIndices)
     for (let k = filteredIndices.length - 1; k >= 0; k--) {
-      const val = row[filteredIndices[k]];
+      const val = row[ filteredIndices[k] ];
       if (val !== null && val !== "" && !isNaN(parseFloat(val))) {
         student.grandTotal = parseFloat(val);
         break;
@@ -98,17 +107,17 @@ export const saveOTPState = (email, expiryTime) => {
 export const getOTPState = () => {
   const stored = localStorage.getItem(OTP_STORAGE_KEY);
   if (!stored) return null;
-
+  
   try {
     const state = JSON.parse(stored);
     const now = Date.now();
-
+    
     // Check if OTP has expired
     if (state.expiryTime < now) {
       clearOTPState();
       return null;
     }
-
+    
     return {
       email: state.email,
       timeLeft: Math.floor((state.expiryTime - now) / 1000),
@@ -119,8 +128,23 @@ export const getOTPState = () => {
   }
 };
 
-export const clearOTPState = () => {
-  localStorage.removeItem(OTP_STORAGE_KEY);
+export const clearOTPState = async () => {
+  try {
+    const stored = localStorage.getItem(OTP_STORAGE_KEY);
+
+    if (!stored) return;
+
+    const { email } = JSON.parse(stored);
+
+    if (email) {
+      await api.post("/auth/cancel", { email });
+    }
+
+    localStorage.removeItem(OTP_STORAGE_KEY);
+  } catch (err) {
+    console.error("Failed to cancel signup:", err);
+    localStorage.removeItem(OTP_STORAGE_KEY); // still clean UI
+  }
 };
 
 // Check if user is already verified
@@ -128,15 +152,15 @@ export const checkUserVerified = async () => {
   try {
     const token = localStorage.getItem('authToken'); // Adjust based on your auth implementation
     if (!token) return false;
-
+    
     // Make API call to check if user is verified
-    const res = await api.get("/api/auth/check-status", {
+    const response = await fetch('http://localhost:5000/api/auth/check-status', {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        'Authorization': `Bearer ${token}`
+      }
     });
-
-    const data = res.data;
+    
+    const data = await response.json();
     return data.isVerified;
   } catch {
     return false;
@@ -221,9 +245,6 @@ const extractClassAndSection = (rawValue) => {
   };
 };
 
-const api = axios.create({
-  baseURL: import.meta.env.MODE=="development"?"http://localhost:5000/":"https://rdjps-resultportal.onrender.com/",
-});
 
 
 

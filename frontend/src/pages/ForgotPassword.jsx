@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { api } from "./utils";
 import { toast } from "react-toastify";
 import "./ForgotPassword.css";
-import { api } from "./utils";
-
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  
+
   const handleSendOtp = async () => {
     if (!email) {
       toast.error("Please enter your registered email");
@@ -21,7 +20,7 @@ const ForgotPassword = () => {
       setLoading(true);
 
       const res = await api.post(
-        "/api/auth/forgot-password",
+        "http://localhost:5000/api/auth/forgot-password",
         { email }
       );
       console.log(res);

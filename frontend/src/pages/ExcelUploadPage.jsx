@@ -4,11 +4,12 @@ import "./ExcelUploadPage.css";
 import StudentDetailsModal from "./StudentDetailsModal";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { api } from "./utils";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 // import { transformDataForBackend } from "./utils";
 import { useNavigate } from "react-router-dom";
-import { api, extractClassAndSection } from "./utils";
+import { extractClassAndSection } from "./utils";
 
 
 const formatDateDDMMYYYY = (dateObj) => {
@@ -354,7 +355,7 @@ const ExcelUploadPage = () => {
       const token = localStorage.getItem("authToken");
 
       const response = await api.post(
-        "/api/students/bulk",
+        "http://localhost:5000/api/students/bulk",
         {
           classId: classId,
           students: transformedData,

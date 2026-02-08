@@ -1,11 +1,12 @@
-import axios from "axios";
+import { api } from "../pages/utils";
 
-const API = axios.create({
-  baseURL: "http://rdjps-resultportal.onrender.com/api/admin"
+// 👇 admin-scoped instance
+const adminAPI = api.create({
+  baseURL: `${api.defaults.baseURL}/api/admin`,
 });
 
 // 🔐 attach token automatically
-API.interceptors.request.use((req) => {
+adminAPI.interceptors.request.use((req) => {
   const token = localStorage.getItem("authToken");
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
@@ -14,7 +15,9 @@ API.interceptors.request.use((req) => {
 });
 
 export const searchTeachers = (query) =>
-  API.get(`/teachers/search?q=${query}`);
+  adminAPI.get(`/teachers/search`, {
+    params: { q: query }
+  });
 
 export const getTeacherActivities = (teacherId) =>
-  API.get(`/teachers/${teacherId}/activities`);
+  adminAPI.get(`/teachers/${teacherId}/activities`);
