@@ -4,8 +4,9 @@ import axios from "axios";
 
 
 
+
 const api = axios.create({
-  baseURL: import.meta.env.MODE=="development"?"http://localhost:5000/api":"https://rdjps-resultportal.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL
 });
 
 
@@ -154,7 +155,7 @@ export const checkUserVerified = async () => {
     if (!token) return false;
     
     // Make API call to check if user is verified
-    const response = await api.get('http://localhost:5000/api/auth/check-status', {
+    const response = await api.get('/auth/check-status', {
       headers: {
         'Authorization': `Bearer ${token}`
       }

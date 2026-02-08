@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { api } from '../../pages/utils';
 
-const API_URL = 'http://localhost:5000/api/auth';
 
 // Async thunks
 export const checkAuth = createAsyncThunk(
@@ -9,58 +8,66 @@ export const checkAuth = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('authToken');
-      
+
       if (!token) {
         return rejectWithValue('No token found');
       }
 
-      const response = await axios.get(`${API_URL}/me`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       return response.data.user;
     } catch (error) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      return rejectWithValue(error.response?.data?.message || 'Authentication failed');
+      return rejectWithValue(
+        error.response?.data?.message || 'Authentication failed'
+      );
     }
   }
 );
+
 
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/login`, credentials);
-      
+      const response = await api.post('/auth/login', credentials);
+
       if (response.data.success) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         return { token: response.data.token, user: response.data.user };
       }
-      
+
       return rejectWithValue(response.data.message || 'Login failed');
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Invalid credentials');
+      return rejectWithValue(
+        error.response?.data?.message || 'Invalid credentials'
+      );
     }
   }
 );
+
 
 export const verifyOTP = createAsyncThunk(
   'auth/verifyOTP',
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/verify-otp`, { email, otp });
-      
+      const response = await api.post('/auth/verify-otp', { email, otp });
+
       if (response.data.success) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         return { token: response.data.token, user: response.data.user };
       }
-      
+
       return rejectWithValue(response.data.message || 'Verification failed');
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Invalid OTP');
+      return rejectWithValue(
+        error.response?.data?.message || 'Invalid OTP'
+      );
     }
   }
 );
@@ -106,7 +113,7 @@ const authSlice = createSlice({
         state.token = null;
         state.error = action.payload;
       })
-      
+
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -124,7 +131,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.error = action.payload;
       })
-      
+
       // Verify OTP
       .addCase(verifyOTP.pending, (state) => {
         state.loading = true;

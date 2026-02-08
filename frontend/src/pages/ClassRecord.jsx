@@ -207,7 +207,7 @@ const ClassRecordsPage = () => {
       const token = localStorage.getItem("authToken");
 
       await api.put(
-        `http://localhost:5000/api/students/${updatedStudent._id}`,
+        `/students/${updatedStudent._id}`,
         payload,
         {
           headers: {

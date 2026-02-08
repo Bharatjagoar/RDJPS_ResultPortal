@@ -195,7 +195,7 @@ const VerifyOTP = () => {
       const expiryTime = Date.now() + newTimeLeft * 1000;
       saveOTPState(email, expiryTime);
 
-      await api.post("http://localhost:5000/api/auth/resend-otp", { email });
+      await api.post("/auth/resend-otp", { email });
 
       toast.success("OTP resent successfully!");
       // navigate("/login");
