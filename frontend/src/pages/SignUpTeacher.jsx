@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./SignUpTeacher.css";
+import { api } from "./utils";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
@@ -27,10 +28,10 @@ const Signup = () => {
     const checkAdmin = async () => {
       try {
         const res = await api.get("/auth/admin-exists");
-        const data = await res.json();
+        const data = await res.data;
         setAdminExists(data.adminExists);
       } catch (err) {
-        console.error("Failed to check admin status");
+        console.error("Failed to check admin status",err );
       }
     };
 
