@@ -9,94 +9,83 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL
 });
 
-
-
-// improved transform - uses tableHeaders + filteredIndices (from handleFileUpload)
+// ⭐ Add this function to your component
 const transformDataForBackend = () => {
-  // tableHeaders and filteredIndices are from state
-  console.log("Using tableHeaders:", tableHeaders);
-  console.log("Using filteredIndices:", filteredIndices);
-  const transformed = fullRawData.map((row, rowIdx) => {
-    // basic fields: try to find common ones in the raw columns by name in tableHeaders
-    // build a map headerName => value for this row using filteredIndices
-    const rowMap = {};
-    tableHeaders.forEach((h, i) => {
-      const originalIndex = filteredIndices[i];
-      rowMap[h] = row[originalIndex] !== undefined ? row[originalIndex] : "";
-    });
+  console.log("🔍 Debugging Headers:");
+  console.log("Main Headers:", allMainHeaders);
+  console.log("Sub Headers:", allSubHeaders);
+  console.log("First Row Sample:", fullRawData[0]);
 
-    // Expect header names like "Name", "Father Name", or custom - adapt as needed
-    const student = {
-      name: row[0] || rowMap["name"] || rowMap["Name"] || "",
-      fatherName: row[1] || rowMap["fatherName"] || rowMap["Father Name"] || "",
-      motherName: row[2] || rowMap["motherName"] || rowMap["Mother Name"] || "",
-      examRollNo: row[3] || rowMap["examRollNo"] || rowMap["Exam Roll No"] || "",
-      class: row[4] || rowMap["class"] || rowMap["Class"] || "",
-      dob: excelDateToJS(row[5] || rowMap["dob"] || rowMap["DOB"] || ""),
-      admissionNo: row[6] || rowMap["admissionNo"] || rowMap["Admission No"] || "",
-      house: row[7] || rowMap["house"] || rowMap["House"] || "",
+  // ⭐ STEP 1: Detect subjects dynamically
+  const subjects = [];
+  let currentSubject = null;
+
+
+  console.log("📚 Detected Subjects:", subjects);
+
+  // ⭐ STEP 2: Find GRADE, Arts/Sports, and Attendance columns
+  let gradeColumnIndex = -1;
+  let resultColumnIndex = -1;
+  let attendanceColumnIndex = -1;
+
+  for (let i = 0; i < allMainHeaders.length; i++) {
+    const mainHeader = allMainHeaders[i] ? allMainHeaders[i].toString().trim().toLowerCase() : "";
+    const subHeader = allSubHeaders[i] ? allSubHeaders[i].toString().trim().toLowerCase() : "";
+
+    if (mainHeader === "grade") {
+      gradeColumnIndex = i;
+    }
+    if (subHeader.includes("arts") || subHeader.includes("sports")) {
+      resultColumnIndex = i;
+    }
+    if (mainHeader === "attendance" || subHeader.includes("attendance")) {
+      attendanceColumnIndex = i;
+    }
+  }
+
+  console.log(`📍 Column Indices - Grade: ${gradeColumnIndex}, Result: ${resultColumnIndex}, Attendance: ${attendanceColumnIndex}`);
+
+  // ⭐ STEP 3: Transform each row
+  const transformedData = fullRawData.map((row, rowIdx) => {
+    const studentData = {
+      name: row[0] || "",
+      fatherName: row[1] || "",
+      motherName: row[2] || "",
+      examRollNo: row[3] || "",
+      class: row[4] || "",
+      dob: excelDateToJS(row[5]) || "",
+      admissionNo: row[6] || "",
+      house: row[7] || "",
       subjects: {},
-      overallGrade: rowMap["overallGrade"] || rowMap["Overall Grade"] || null,
-      result: rowMap["result"] || null,
-      grandTotal: null
+      overallGrade: gradeColumnIndex >= 0 ? (row[gradeColumnIndex] || "") : "",
+      result: resultColumnIndex >= 0 ? (row[resultColumnIndex] || "") : "",
+      grandTotal: attendanceColumnIndex >= 0 ? (parseFloat(row[attendanceColumnIndex]) || 0) : 0
     };
 
-    // Build subjects from tableHeaders: headers contain names like "Hindi Total", or "Maths Total".
-    // We will detect headers that end with "Total" and then look for related internals/mid/final
-    // We'll attempt to find internals/mid/final columns by searching tableHeaders for words.
-    const headerLower = tableHeaders.map(h => (h || "").toString().toLowerCase());
+    // Parse each subject
+    subjects.forEach((subject) => {
+      const internals = parseFloat(row[subject.internalsIndex]) || 0;
+      const midTerm = parseFloat(row[subject.midTermIndex]) || 0;
+      const finalTerm = parseFloat(row[subject.finalTermIndex]) || 0;
+      const total = parseFloat(row[subject.totalIndex]) || 0;
+      const grade = row[subject.gradeIndex] || "";
 
-    // Example heuristics: if header is "hindi total" or "hindi total" -> subjectName = "hindi"
-    headerLower.forEach((h, idx) => {
-      if (!h) return;
-      if (h.includes(" total")) {
-        const orig = tableHeaders[idx];
-        // get subject name by removing trailing " Total"
-        const subjectName = orig.replace(/[\s]*[Tt]otal$/,'').trim();
-        if (!subjectName) return;
-
-        // find internals/mid/final columns for the same subject
-        const maybeInternalsIndex = headerLower.findIndex(x => x.includes(subjectName.toLowerCase()) && (x.includes("internal") || x.includes("internals") || x.includes("(20)") || x.includes("internal (20)")));
-        const maybeMidIndex = headerLower.findIndex(x => x.includes(subjectName.toLowerCase()) && (x.includes("mid") || x.includes("(30)")));
-        const maybeFinalIndex = headerLower.findIndex(x => x.includes(subjectName.toLowerCase()) && (x.includes("final") || x.includes("(50)") || x.includes("end")));
-
-        const totalVal = row[ filteredIndices[idx] ];
-        const internalsVal = maybeInternalsIndex === -1 ? null : row[ filteredIndices[maybeInternalsIndex] ];
-        const midVal = maybeMidIndex === -1 ? null : row[ filteredIndices[maybeMidIndex] ];
-        const finalVal = maybeFinalIndex === -1 ? null : row[ filteredIndices[maybeFinalIndex] ];
-
-        const internalsN = internalsVal === "" || internalsVal == null ? null : parseFloat(internalsVal) || 0;
-        const midN = midVal === "" || midVal == null ? null : parseFloat(midVal) || 0;
-        const finalN = finalVal === "" || finalVal == null ? null : parseFloat(finalVal) || 0;
-        const totalN = totalVal === "" || totalVal == null ? null : parseFloat(totalVal) || 0;
-
-        // store only if there's some data
-        if (internalsN !== null || midN !== null || finalN !== null || totalN !== null) {
-          student.subjects[subjectName] = {
-            internals: internalsN,
-            midTerm: midN,
-            finalTerm: finalN,
-            total: totalN,
-            grade: null // if you have a grade column, must find and set similarly
-          };
-        }
-      }
+      studentData.subjects[subject.name] = {
+        internals,
+        midTerm,
+        finalTerm,
+        total,
+        grade
+      };
     });
 
-    // try to get grand total (maybe last numeric column in filteredIndices)
-    for (let k = filteredIndices.length - 1; k >= 0; k--) {
-      const val = row[ filteredIndices[k] ];
-      if (val !== null && val !== "" && !isNaN(parseFloat(val))) {
-        student.grandTotal = parseFloat(val);
-        break;
-      }
-    }
-
-    return student;
+    return studentData;
   });
 
-  return transformed;
+  return transformedData;
 };
+
+
 export const saveOTPState = (email, expiryTime) => {
   const state = {
     email,
@@ -108,17 +97,17 @@ export const saveOTPState = (email, expiryTime) => {
 export const getOTPState = () => {
   const stored = localStorage.getItem(OTP_STORAGE_KEY);
   if (!stored) return null;
-  
+
   try {
     const state = JSON.parse(stored);
     const now = Date.now();
-    
+
     // Check if OTP has expired
     if (state.expiryTime < now) {
       clearOTPState();
       return null;
     }
-    
+
     return {
       email: state.email,
       timeLeft: Math.floor((state.expiryTime - now) / 1000),
@@ -153,14 +142,14 @@ export const checkUserVerified = async () => {
   try {
     const token = localStorage.getItem('authToken'); // Adjust based on your auth implementation
     if (!token) return false;
-    
+
     // Make API call to check if user is verified
     const response = await api.get('/auth/check-status', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    
+
     const data = await response.data;
     return data.isVerified;
   } catch {
@@ -247,7 +236,117 @@ const extractClassAndSection = (rawValue) => {
 };
 
 
+const normalize = (text = "") =>
+  text
+    .toLowerCase()
+    .replace(/\r?\n|\r/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+
+const detectKey = (sub) => {
+  if (sub.includes("ut")) return "ut";
+  if (sub.includes("mid")) return "mid";
+  if (sub.includes("final")) return "final";
+  if (sub.includes("project")) return "project";
+  if (sub.includes("internal")) return "internal";
+  if (sub.includes("practical")) return "practical";
+  if (sub.includes("total")) return "total";
+  return null;
+};
 
 
 
-export { transformDataForBackend, calculateGrade, calculateResultFromSubjects, calculateGrandTotalAndMax, extractClassAndSection, api };
+const buildSubjectMap = (mainHeaders, subHeaders) => {
+  const subjectMap = {};
+  let currentSubject = null;
+
+  for (let i = 8; i < subHeaders.length; i++) {
+    const main = (mainHeaders[i] || "").trim();
+    const sub = normalize(subHeaders[i]);
+
+    // stop when academic subjects end
+    if (main.toLowerCase() === "attendance") break;
+
+    // new subject block starts
+    if (main && main !== currentSubject) {
+      currentSubject = main;
+      subjectMap[currentSubject] = [];
+    }
+
+    if (!currentSubject) continue;
+
+    const key = detectKey(sub);
+    if (!key) continue;
+
+    subjectMap[currentSubject].push({
+      key,
+      index: i
+    });
+  }
+
+  return subjectMap;
+};
+
+const hasAnyMarks = (subjectData) => {
+  return Object.entries(subjectData).some(
+    ([key, value]) =>
+      key !== "subject" && Number(value) > 0
+  );
+};
+
+
+const buildColumnSchema = (subjectMap) => {
+  const orderedKeys = [];
+  const seen = new Set();
+
+  Object.values(subjectMap).forEach(fields => {
+    fields.forEach(({ key }) => {
+      if (!seen.has(key)) {
+        seen.add(key);
+        orderedKeys.push(key);
+      }
+    });
+  });
+
+  return orderedKeys;
+};
+
+
+const formatHeaderLabel = (key) =>
+  key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
+
+export const orderColumnKeys = (keys) => {
+  const priority = [
+    "ut",
+    "internal",
+    "mid",
+    "final",
+    "project",
+    "practical",
+    "total"
+  ];
+
+  return [
+    ...priority.filter(p => keys.includes(p)),
+    ...keys.filter(k => !priority.includes(k))
+  ];
+};
+
+
+
+export {
+  transformDataForBackend,
+  calculateGrade,
+  calculateResultFromSubjects,
+  calculateGrandTotalAndMax,
+  extractClassAndSection,
+  api,
+  buildSubjectMap,
+  hasAnyMarks,
+  buildColumnSchema,
+  formatHeaderLabel
+};
+

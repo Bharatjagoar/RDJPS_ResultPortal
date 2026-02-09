@@ -4,7 +4,7 @@ import "./ExcelUploadPage.css";
 import StudentDetailsModal from "./StudentDetailsModal";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { api } from "./utils";
+import { api, buildSubjectMap,hasAnyMarks } from "./utils";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 // import { transformDataForBackend } from "./utils";
@@ -65,6 +65,8 @@ const ExcelUploadPage = () => {
   const [allMainHeaders, setAllMainHeaders] = useState([]);
   const [allSubHeaders, setAllSubHeaders] = useState([]);
   const [filteredIndices, setFilteredIndices] = useState([]); // ⭐ Store filtered indices
+  const [subjectMap, setSubjectMap] = useState({});
+
   const nav = useNavigate();
 
 
@@ -99,9 +101,17 @@ const ExcelUploadPage = () => {
       console.log("Main Headers (Row 0):", mainHeaders);
       console.log("Sub Headers (Row 1):", subHeaders);
 
+      const mappedsub = buildSubjectMap(mainHeaders, subHeaders);
+      console.log("mappedsub :: ", mappedsub);
+
       setAllMainHeaders(mainHeaders);
       setAllSubHeaders(subHeaders);
       setFullRawData(rawRows);
+
+      const map = buildSubjectMap(mainHeaders, subHeaders);
+      console.log("📚 SUBJECT MAP:", map);
+      setSubjectMap(map);
+
 
       const filteredHeaders = [];
       const indices = [];
@@ -187,6 +197,11 @@ const ExcelUploadPage = () => {
 
   // ⭐ Add this function to your component
   const transformDataForBackend = () => {
+    if (!subjectMap || Object.keys(subjectMap).length === 0) {
+      console.error("❌ Subject map not ready");
+      return [];
+    }
+
     console.log("🔍 Debugging Headers:");
     console.log("Main Headers:", allMainHeaders);
     console.log("Sub Headers:", allSubHeaders);
@@ -196,28 +211,6 @@ const ExcelUploadPage = () => {
     const subjects = [];
     let currentSubject = null;
 
-    for (let i = 8; i < allMainHeaders.length; i++) {
-      const mainHeader = allMainHeaders[i] ? allMainHeaders[i].toString().trim() : "";
-      const subHeader = allSubHeaders[i] ? allSubHeaders[i].toString().trim().toLowerCase() : "";
-
-      // Skip GRADE and Attendance columns
-      if (mainHeader.toLowerCase() === "grade" || mainHeader.toLowerCase() === "attendance") {
-        break;
-      }
-
-      // New subject detected
-      if (mainHeader && mainHeader !== "") {
-        currentSubject = {
-          name: mainHeader,
-          internalsIndex: i,
-          midTermIndex: i + 1,
-          finalTermIndex: i + 2,
-          totalIndex: i + 3,
-          gradeIndex: i + 4
-        };
-        subjects.push(currentSubject);
-      }
-    }
 
     console.log("📚 Detected Subjects:", subjects);
 
@@ -261,21 +254,31 @@ const ExcelUploadPage = () => {
       };
 
       // Parse each subject
-      subjects.forEach((subject) => {
-        const internals = parseFloat(row[subject.internalsIndex]) || 0;
-        const midTerm = parseFloat(row[subject.midTermIndex]) || 0;
-        const finalTerm = parseFloat(row[subject.finalTermIndex]) || 0;
-        const total = parseFloat(row[subject.totalIndex]) || 0;
-        const grade = row[subject.gradeIndex] || "";
+      Object.entries(subjectMap).forEach(([subjectName, fields]) => {
+        if (!fields || fields.length === 0) return;
 
-        studentData.subjects[subject.name] = {
-          internals,
-          midTerm,
-          finalTerm,
-          total,
-          grade
+        const subjectData = {
+          internals: 0,
+          mid: 0,
+          final: 0,
+          total: 0,
         };
+
+        fields.forEach(({ key, index }) => {
+          const value = parseFloat(row[index]) || 0;
+
+          if (key === "ut") subjectData.internals = value;
+          if (key === "mid") subjectData.mid = value;
+          if (key === "final") subjectData.final = value;
+          if (key === "total") subjectData.total = value;
+        });
+
+        // 🔥 SAME FILTER AS MODAL
+        if (hasAnyMarks(subjectData)) {
+          studentData.subjects[subjectName] = subjectData;
+        }
       });
+
 
       return studentData;
     });
@@ -286,6 +289,7 @@ const ExcelUploadPage = () => {
   // ⭐ Update your handleSubmit function
   const handleSubmit = async () => {
     const transformedData = transformDataForBackend();
+    console.log("here is tje code  :: 🎉🎉🎉🎉🎉",transformedData);
     // ===============================
     // 🔍 DETECT CLASS & SECTION FROM EXCEL
     // ===============================
@@ -580,9 +584,9 @@ const ExcelUploadPage = () => {
               isOpen={modalOpen}
               onClose={() => setModalOpen(false)}
               student={selectedStudent}
-              mainHeaders={allMainHeaders}
-              subHeaders={allSubHeaders}
+              subjectMap={subjectMap}
             />
+
 
             <button className="submit-btn" onClick={handleSubmit}>Submit Data</button>
           </>

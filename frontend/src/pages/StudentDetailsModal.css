@@ -17,6 +17,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -40,6 +41,7 @@
     transform: translateY(50px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -108,6 +110,15 @@
   border-left: 4px solid #667eea;
   letter-spacing: -0.3px;
 }
+
+.total-cell {
+  font-weight: 700;
+  font-size: 16px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  color: #166534;
+  /* background-color: #166534; */
+}
+
 
 .section-title:first-of-type {
   margin-top: 10px;
@@ -216,12 +227,12 @@
   font-weight: 600;
 }
 
-.details-table tbody tr td:nth-child(5) {
+/* .details-table tbody tr td:nth-child(5) {
   font-weight: 700;
   font-size: 16px;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   color: #166534;
-}
+} */
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -261,9 +272,9 @@
     font-size: 12px;
   }
 
-  .details-table tbody tr td:nth-child(5) {
+  /* .details-table tbody tr td:nth-child(5) {
     font-size: 14px;
-  }
+  } */
 
   .close-btn {
     padding: 8px 12px;
@@ -290,6 +301,7 @@
     font-size: 11px;
   }
 }
+
 /* Make table inputs look like plain text */
 .editable-cell {
   width: 80px;
