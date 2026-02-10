@@ -4,12 +4,12 @@ import "./ExcelUploadPage.css";
 import StudentDetailsModal from "./StudentDetailsModal";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { api, buildSubjectMap,hasAnyMarks } from "./utils";
+import { api, buildSubjectMap, hasAnyMarks } from "./utils";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 // import { transformDataForBackend } from "./utils";
 import { useNavigate } from "react-router-dom";
-import { extractClassAndSection } from "./utils";
+import { extractClassAndSection, validateAllStudents } from "./utils";
 
 
 const formatDateDDMMYYYY = (dateObj) => {
@@ -202,42 +202,21 @@ const ExcelUploadPage = () => {
       return [];
     }
 
-    console.log("🔍 Debugging Headers:");
-    console.log("Main Headers:", allMainHeaders);
-    console.log("Sub Headers:", allSubHeaders);
-    console.log("First Row Sample:", fullRawData[0]);
+    // 🔍 STEP 1: Detect ACTIVITY columns dynamically
+    const activityColumns = [];
 
-    // ⭐ STEP 1: Detect subjects dynamically
-    const subjects = [];
-    let currentSubject = null;
+    allMainHeaders.forEach((header, index) => {
+      const h = header?.toString().toLowerCase().trim();
 
-
-    console.log("📚 Detected Subjects:", subjects);
-
-    // ⭐ STEP 2: Find GRADE, Arts/Sports, and Attendance columns
-    let gradeColumnIndex = -1;
-    let resultColumnIndex = -1;
-    let attendanceColumnIndex = -1;
-
-    for (let i = 0; i < allMainHeaders.length; i++) {
-      const mainHeader = allMainHeaders[i] ? allMainHeaders[i].toString().trim().toLowerCase() : "";
-      const subHeader = allSubHeaders[i] ? allSubHeaders[i].toString().trim().toLowerCase() : "";
-
-      if (mainHeader === "grade") {
-        gradeColumnIndex = i;
+      if (h === "activity" || h === "activities") {
+        const sub = allSubHeaders[index]?.toString().trim();
+        if (sub) {
+          activityColumns.push({ key: sub, index });
+        }
       }
-      if (subHeader.includes("arts") || subHeader.includes("sports")) {
-        resultColumnIndex = i;
-      }
-      if (mainHeader === "attendance" || subHeader.includes("attendance")) {
-        attendanceColumnIndex = i;
-      }
-    }
+    });
 
-    console.log(`📍 Column Indices - Grade: ${gradeColumnIndex}, Result: ${resultColumnIndex}, Attendance: ${attendanceColumnIndex}`);
-
-    // ⭐ STEP 3: Transform each row
-    const transformedData = fullRawData.map((row, rowIdx) => {
+    return fullRawData.map((row) => {
       const studentData = {
         name: row[0] || "",
         fatherName: row[1] || "",
@@ -248,48 +227,52 @@ const ExcelUploadPage = () => {
         admissionNo: row[6] || "",
         house: row[7] || "",
         subjects: {},
-        overallGrade: gradeColumnIndex >= 0 ? (row[gradeColumnIndex] || "") : "",
-        result: resultColumnIndex >= 0 ? (row[resultColumnIndex] || "") : "",
-        grandTotal: attendanceColumnIndex >= 0 ? (parseFloat(row[attendanceColumnIndex]) || 0) : 0
+        activities: {}   // ✅ NEW
       };
 
-      // Parse each subject
+
       Object.entries(subjectMap).forEach(([subjectName, fields]) => {
         if (!fields || fields.length === 0) return;
 
-        const subjectData = {
-          internals: 0,
-          mid: 0,
-          final: 0,
-          total: 0,
-        };
+        const subjectData = {};
 
         fields.forEach(({ key, index }) => {
-          const value = parseFloat(row[index]) || 0;
-
-          if (key === "ut") subjectData.internals = value;
-          if (key === "mid") subjectData.mid = value;
-          if (key === "final") subjectData.final = value;
-          if (key === "total") subjectData.total = value;
+          const raw = row[index];
+          const value = Number(raw);
+          if (!isNaN(value)) {
+            subjectData[key] = value;
+          }
         });
 
-        // 🔥 SAME FILTER AS MODAL
         if (hasAnyMarks(subjectData)) {
           studentData.subjects[subjectName] = subjectData;
         }
       });
+      // ===============================
+      // ⭐ ACTIVITY PARSING (NEW)
+      // ===============================
+      activityColumns.forEach(({ key, index }) => {
+        const rawValue = row[index];
 
-
+        if (
+          rawValue !== undefined &&
+          rawValue !== null &&
+          rawValue.toString().trim() !== ""
+        ) {
+          studentData.activities[key] = rawValue.toString().trim();
+        }
+      });
+      console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉 :: ",activityColumns);
       return studentData;
     });
-
-    return transformedData;
   };
+
+
 
   // ⭐ Update your handleSubmit function
   const handleSubmit = async () => {
     const transformedData = transformDataForBackend();
-    console.log("here is tje code  :: 🎉🎉🎉🎉🎉",transformedData);
+    console.log("here is tje code  :: 🎉🎉🎉🎉🎉", transformedData);
     // ===============================
     // 🔍 DETECT CLASS & SECTION FROM EXCEL
     // ===============================
@@ -415,101 +398,10 @@ const ExcelUploadPage = () => {
     return { valid: true, value: num };
   };
 
-  const validateSubject = (subjectName, subjectData) => {
-    const errors = [];
 
-    const internalsValidation = validateMarks(subjectData.internals, 20, `${subjectName} - Internals`);
-    if (!internalsValidation.valid) errors.push(internalsValidation.error);
 
-    const midTermValidation = validateMarks(subjectData.midTerm, 30, `${subjectName} - Mid Term`);
-    if (!midTermValidation.valid) errors.push(midTermValidation.error);
 
-    const finalTermValidation = validateMarks(subjectData.finalTerm, 50, `${subjectName} - Final Term`);
-    if (!finalTermValidation.valid) errors.push(finalTermValidation.error);
 
-    const totalValidation = validateMarks(subjectData.total, 100, `${subjectName} - Total`);
-    if (!totalValidation.valid) errors.push(totalValidation.error);
-
-    if (internalsValidation.valid && midTermValidation.valid && finalTermValidation.valid && totalValidation.valid) {
-      const calculatedTotal = internalsValidation.value + midTermValidation.value + finalTermValidation.value;
-      if (Math.abs(calculatedTotal - totalValidation.value) > 0.01) {
-        errors.push(`${subjectName} - Total (${totalValidation.value}) doesn't match sum (${calculatedTotal})`);
-      }
-    }
-
-    // const validGrades = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D', 'E', 'E1'];
-    // if (!validGrades.includes(subjectData.grade)) {
-    //   errors.push(`${subjectName} - Invalid grade: ${subjectData.grade}`);
-    // }
-
-    return errors;
-  };
-
-  const validateStudent = (student, rowIndex) => {
-    const errors = [];
-    const studentIdentifier = `Row ${rowIndex + 1} (${student.name || 'Unknown'})`;
-
-    if (!student.name || student.name.trim() === '') {
-      errors.push(`${studentIdentifier} - Name is required`);
-    }
-
-    if (!student.examRollNo || isNaN(student.examRollNo)) {
-      errors.push(`${studentIdentifier} - Valid exam roll number is required`);
-    }
-
-    if (!student.admissionNo || isNaN(student.admissionNo)) {
-      errors.push(`${studentIdentifier} - Valid admission number is required`);
-    }
-
-    const validHouses = ['Vallabhi', 'Pushpagiri', 'Takshshila', 'Nalanda'];
-    if (student.house && !validHouses.includes(student.house)) {
-      errors.push(`${studentIdentifier} - Invalid house: ${student.house}`);
-    }
-
-    if (!student.subjects || Object.keys(student.subjects).length === 0) {
-      errors.push(`${studentIdentifier} - At least one subject is required`);
-    } else {
-      for (const [subjectName, subjectData] of Object.entries(student.subjects)) {
-        const subjectErrors = validateSubject(subjectName, subjectData);
-        errors.push(...subjectErrors.map(err => `${studentIdentifier} - ${err}`));
-      }
-    }
-
-    return errors;
-  };
-
-  const validateAllStudents = (students) => {
-    const allErrors = [];
-    const rollNoMap = new Map();
-    const admissionNoMap = new Map();
-
-    students.forEach((student, index) => {
-      const studentErrors = validateStudent(student, index);
-      allErrors.push(...studentErrors);
-
-      if (student.examRollNo) {
-        if (rollNoMap.has(student.examRollNo)) {
-          allErrors.push(`Duplicate Exam Roll No: ${student.examRollNo} at rows ${rollNoMap.get(student.examRollNo) + 1} and ${index + 1}`);
-        } else {
-          rollNoMap.set(student.examRollNo, index);
-        }
-      }
-
-      if (student.admissionNo) {
-        if (admissionNoMap.has(student.admissionNo)) {
-          allErrors.push(`Duplicate Admission No: ${student.admissionNo} at rows ${admissionNoMap.get(student.admissionNo) + 1} and ${index + 1}`);
-        } else {
-          admissionNoMap.set(student.admissionNo, index);
-        }
-      }
-    });
-
-    return {
-      isValid: allErrors.length === 0,
-      errors: allErrors,
-      totalStudents: students.length
-    };
-  };
 
 
   return (

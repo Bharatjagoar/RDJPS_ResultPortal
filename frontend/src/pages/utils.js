@@ -335,6 +335,130 @@ export const orderColumnKeys = (keys) => {
   ];
 };
 
+const validateSubject = (subjectName, subjectData) => {
+  const errors = [];
+
+  const maxByKey = {
+    ut: 20,
+    internals: 20,
+    mid: 30,
+    midTerm: 30,
+    final: 50,
+    finalTerm: 50,
+    project: 20,
+    practical: 30,
+    total: 100
+  };
+
+  // 1️⃣ Validate only keys that actually exist
+  for (const [key, value] of Object.entries(subjectData)) {
+    if (key === "grade") continue;
+
+    if (value === undefined || value === null || value === "") continue;
+
+    const num = Number(value);
+    if (isNaN(num)) {
+      errors.push(`${subjectName} - ${key} must be a number`);
+      continue;
+    }
+
+    if (num < 0) {
+      errors.push(`${subjectName} - ${key} cannot be negative`);
+    }
+
+    const max = maxByKey[key];
+    if (max !== undefined && num > max) {
+      errors.push(`${subjectName} - ${key} cannot exceed ${max}`);
+    }
+  }
+
+  // 2️⃣ TOTAL consistency check (dynamic)
+  if ("total" in subjectData) {
+    const sum = Object.entries(subjectData)
+      .filter(([k]) => k !== "total" && k !== "grade")
+      .reduce((acc, [, v]) => acc + (Number(v) || 0), 0);
+
+    if (Math.abs(sum - Number(subjectData.total)) > 0.01) {
+      errors.push(
+        `${subjectName} - Total (${subjectData.total}) does not match sum (${sum})`
+      );
+    }
+  }
+
+  return errors;
+};
+
+
+const validateStudent = (student, rowIndex) => {
+  const errors = [];
+  const studentIdentifier = `Row ${rowIndex + 1} (${student.name || 'Unknown'})`;
+
+  if (!student.name || student.name.trim() === '') {
+    errors.push(`${studentIdentifier} - Name is required`);
+  }
+
+  if (!student.examRollNo || isNaN(student.examRollNo)) {
+    errors.push(`${studentIdentifier} - Valid exam roll number is required`);
+  }
+
+  if (!student.admissionNo || isNaN(student.admissionNo)) {
+    errors.push(`${studentIdentifier} - Valid admission number is required`);
+  }
+
+  const validHouses = ['Vallabhi', 'Pushpagiri', 'Takshshila', 'Nalanda'];
+  if (student.house && !validHouses.includes(student.house)) {
+    errors.push(`${studentIdentifier} - Invalid house: ${student.house}`);
+  }
+
+  if (!student.subjects || Object.keys(student.subjects).length === 0) {
+    errors.push(`${studentIdentifier} - At least one subject is required`);
+  } else {
+    for (const [subjectName, subjectData] of Object.entries(student.subjects)) {
+      const subjectErrors = validateSubject(subjectName, subjectData);
+      errors.push(...subjectErrors.map(err => `${studentIdentifier} - ${err}`));
+    }
+  }
+
+  return errors;
+};
+
+const validateAllStudents = (students) => {
+  const allErrors = [];
+  const rollNoMap = new Map();
+  const admissionNoMap = new Map();
+
+  students.forEach((student, index) => {
+    const studentErrors = validateStudent(student, index);
+    allErrors.push(...studentErrors);
+
+    if (student.examRollNo) {
+      if (rollNoMap.has(student.examRollNo)) {
+        allErrors.push(`Duplicate Exam Roll No: ${student.examRollNo} at rows ${rollNoMap.get(student.examRollNo) + 1} and ${index + 1}`);
+      } else {
+        rollNoMap.set(student.examRollNo, index);
+      }
+    }
+
+    if (student.admissionNo) {
+      if (admissionNoMap.has(student.admissionNo)) {
+        allErrors.push(`Duplicate Admission No: ${student.admissionNo} at rows ${admissionNoMap.get(student.admissionNo) + 1} and ${index + 1}`);
+      } else {
+        admissionNoMap.set(student.admissionNo, index);
+      }
+    }
+  });
+
+  return {
+    isValid: allErrors.length === 0,
+    errors: allErrors,
+    totalStudents: students.length
+  };
+};
+
+
+
+
+
 
 
 export {
@@ -347,6 +471,9 @@ export {
   buildSubjectMap,
   hasAnyMarks,
   buildColumnSchema,
-  formatHeaderLabel
+  formatHeaderLabel,
+  validateSubject,
+  validateStudent,
+  validateAllStudents
 };
 
