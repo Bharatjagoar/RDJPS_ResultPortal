@@ -204,29 +204,37 @@ const ExcelUploadPage = () => {
     // ===============================
     // ⭐ STEP 1: Detect ACTIVITY columns
     // ===============================
+    // 🔍 STEP 1: Detect ACTIVITY columns dynamically
     const activityColumns = [];
-    let activityStarted = false;
+    let activityStartIndex = -1;
 
+    // Find where Activity block starts
     for (let i = 0; i < allMainHeaders.length; i++) {
       const main = allMainHeaders[i]?.toString().trim().toLowerCase();
-      const sub = allSubHeaders[i]?.toString().trim();
-
-      // Detect start of Activity block
       if (main === "activity" || main === "activities") {
-        activityStarted = true;
-        continue;
-      }
-
-      // Once activity started, collect until subHeaders disappear
-      if (activityStarted) {
-        if (!sub) break; // Activity columns finished
-
-        activityColumns.push({
-          key: sub.toLowerCase().replace(/\s+/g, "_"), // ge, sports, comp_hobby
-          index: i
-        });
+        activityStartIndex = i;
+        break;
       }
     }
+
+    // Collect all subheaders AFTER Activity until next main header appears
+    if (activityStartIndex !== -1) {
+      for (let i = activityStartIndex; i < allSubHeaders.length; i++) {
+        const main = allMainHeaders[i]?.toString().trim();
+        const sub = allSubHeaders[i]?.toString().trim();
+
+        // Stop only if a NEW subject starts
+        if (i !== activityStartIndex && main) break;
+
+        if (sub) {
+          activityColumns.push({
+            key: sub.toLowerCase().replace(/[^a-z0-9]/g, "_"), // ge, sports, comp_hobby
+            index: i
+          });
+        }
+      }
+    }
+
 
     console.log("✅ Detected activity columns:", activityColumns);
 
@@ -354,7 +362,7 @@ const ExcelUploadPage = () => {
 
     console.log("✅ VALIDATION PASSED!");
     console.log(transformedData);
-    
+
     // console.log(transformedData);
     // ⭐ Now send to backend with Axios
     try {
