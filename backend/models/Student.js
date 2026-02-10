@@ -5,9 +5,9 @@ const subjectSchema = new mongoose.Schema({
   midTerm: { type: Number, required: true, min: 0, max: 30 },
   finalTerm: { type: Number, required: true, min: 0, max: 50 },
   total: { type: Number, required: true, min: 0, max: 100 },
-  grade: { 
-    type: String, 
-    default:null
+  grade: {
+    type: String,
+    default: null
   }
 }, { _id: false });
 
@@ -19,16 +19,20 @@ const studentSchema = new mongoose.Schema({
   class: { type: String, required: true },
   dob: { type: String, },
   admissionNo: { type: Number, required: true, unique: true },
-  house: { 
-    type: String, 
-    required: true, 
-    enum: ['Vallabhi', 'Pushpagiri', 'Takshshila', 'Nalanda'] 
+  house: {
+    type: String,
+    required: true,
+    enum: ['Vallabhi', 'Pushpagiri', 'Takshshila', 'Nalanda']
   },
   subjects: {
-  type: mongoose.Schema.Types.Mixed,
-  required: true
-}
-,
+    type: mongoose.Schema.Types.Mixed,
+    required: true
+  },
+  activities: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
+
   overallGrade: { type: String, default: null },
   result: { type: String, default: null },
   grandTotal: { type: Number, required: true, min: 0 }

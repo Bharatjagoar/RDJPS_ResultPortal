@@ -195,27 +195,44 @@ const ExcelUploadPage = () => {
     setEditMode(!editMode);
   };
 
-  // ⭐ Add this function to your component
   const transformDataForBackend = () => {
     if (!subjectMap || Object.keys(subjectMap).length === 0) {
       console.error("❌ Subject map not ready");
       return [];
     }
 
-    // 🔍 STEP 1: Detect ACTIVITY columns dynamically
+    // ===============================
+    // ⭐ STEP 1: Detect ACTIVITY columns
+    // ===============================
     const activityColumns = [];
+    let activityStarted = false;
 
-    allMainHeaders.forEach((header, index) => {
-      const h = header?.toString().toLowerCase().trim();
+    for (let i = 0; i < allMainHeaders.length; i++) {
+      const main = allMainHeaders[i]?.toString().trim().toLowerCase();
+      const sub = allSubHeaders[i]?.toString().trim();
 
-      if (h === "activity" || h === "activities") {
-        const sub = allSubHeaders[index]?.toString().trim();
-        if (sub) {
-          activityColumns.push({ key: sub, index });
-        }
+      // Detect start of Activity block
+      if (main === "activity" || main === "activities") {
+        activityStarted = true;
+        continue;
       }
-    });
 
+      // Once activity started, collect until subHeaders disappear
+      if (activityStarted) {
+        if (!sub) break; // Activity columns finished
+
+        activityColumns.push({
+          key: sub.toLowerCase().replace(/\s+/g, "_"), // ge, sports, comp_hobby
+          index: i
+        });
+      }
+    }
+
+    console.log("✅ Detected activity columns:", activityColumns);
+
+    // ===============================
+    // ⭐ STEP 2: Transform rows
+    // ===============================
     return fullRawData.map((row) => {
       const studentData = {
         name: row[0] || "",
@@ -227,10 +244,12 @@ const ExcelUploadPage = () => {
         admissionNo: row[6] || "",
         house: row[7] || "",
         subjects: {},
-        activities: {}   // ✅ NEW
+        activities: {}
       };
 
-
+      // ===============================
+      // ⭐ SUBJECTS
+      // ===============================
       Object.entries(subjectMap).forEach(([subjectName, fields]) => {
         if (!fields || fields.length === 0) return;
 
@@ -239,6 +258,7 @@ const ExcelUploadPage = () => {
         fields.forEach(({ key, index }) => {
           const raw = row[index];
           const value = Number(raw);
+
           if (!isNaN(value)) {
             subjectData[key] = value;
           }
@@ -248,21 +268,18 @@ const ExcelUploadPage = () => {
           studentData.subjects[subjectName] = subjectData;
         }
       });
+
       // ===============================
-      // ⭐ ACTIVITY PARSING (NEW)
+      // ⭐ ACTIVITIES (Grades only)
       // ===============================
       activityColumns.forEach(({ key, index }) => {
-        const rawValue = row[index];
+        const value = row[index];
 
-        if (
-          rawValue !== undefined &&
-          rawValue !== null &&
-          rawValue.toString().trim() !== ""
-        ) {
-          studentData.activities[key] = rawValue.toString().trim();
+        if (value && value.toString().trim() !== "") {
+          studentData.activities[key] = value.toString().trim();
         }
       });
-      console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉 :: ",activityColumns);
+
       return studentData;
     });
   };
@@ -337,6 +354,8 @@ const ExcelUploadPage = () => {
 
     console.log("✅ VALIDATION PASSED!");
     console.log(transformedData);
+    
+    // console.log(transformedData);
     // ⭐ Now send to backend with Axios
     try {
       const token = localStorage.getItem("authToken");

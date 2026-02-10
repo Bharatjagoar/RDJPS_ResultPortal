@@ -91,11 +91,11 @@ async function ensureClassAndSection(className, sectionName) {
 const bulkUploadStudents = async (req, res) => {
   try {
     const { classId, students } = req.body;
-    
-    console.log(extractClassAndSection(students[0].class));
+
+    console.log(extractClassAndSection(students));
     let { className, section } = extractClassAndSection(students[0].class);
     const resultofclass = await ensureClassAndSection(className, section);
-    console.log("result of class ======", resultofclass);
+    // console.log("result of class ======", resultofclass);
     if (!Array.isArray(students) || students.length === 0) {
       return res.status(400).json({
         success: false,
@@ -121,7 +121,7 @@ const bulkUploadStudents = async (req, res) => {
         examRollNo: Number(incoming.examRollNo),
         class: incoming.class
       });
-
+      console.log(incoming);
       // -----------------------------
       // 2️⃣ CREATE NEW STUDENT
       // -----------------------------
@@ -134,6 +134,7 @@ const bulkUploadStudents = async (req, res) => {
           class: incoming.class,
           dob: incoming.dob || "",
           admissionNo: Number(incoming.admissionNo),
+          activities: incoming.activities || {},
           house: incoming.house,
           subjects: incoming.subjects || {},
           overallGrade: incoming.overallGrade || null,
@@ -241,7 +242,21 @@ const bulkUploadStudents = async (req, res) => {
       }
 
       // Mark subjects as modified for Mongoose
-      existingStudent.markModified('subjects');
+      // 🔹 ACTIVITY SMART MERGE
+      if (incoming.activities && typeof incoming.activities === "object") {
+        if (!existingStudent.activities) {
+          existingStudent.activities = {};
+        }
+
+        for (const [activityName, grade] of Object.entries(incoming.activities)) {
+          if (grade && grade.toString().trim() !== "") {
+            existingStudent.activities[activityName] = grade;
+          }
+        }
+
+        existingStudent.markModified("activities");
+      }
+
 
       await existingStudent.save();
       updated++;
@@ -378,7 +393,7 @@ const updateStudent = async (req, res) => {
       { new: true, runValidators: true }
     ).lean();
 
-    console.log(updateData,"for the windows alert");
+    console.log(updateData, "for the windows alert");
     // ⭐ Log the activity
     await ActivityLogService.logMarksUpdate({
       teacherId: req.user.id,
