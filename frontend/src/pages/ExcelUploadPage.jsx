@@ -3,13 +3,13 @@ import * as XLSX from "xlsx";
 import "./ExcelUploadPage.css";
 import StudentDetailsModal from "./StudentDetailsModal";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import { api, buildSubjectMap, hasAnyMarks } from "./utils";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 // import { transformDataForBackend } from "./utils";
 import { useNavigate } from "react-router-dom";
 import { extractClassAndSection, validateAllStudents } from "./utils";
+import { excelDateToJS } from "./utils";
 
 
 const formatDateDDMMYYYY = (dateObj) => {
@@ -21,37 +21,8 @@ const formatDateDDMMYYYY = (dateObj) => {
 
 
 
-const excelDateToJS = (serialOrVal) => {
-  if (serialOrVal === null || serialOrVal === undefined || serialOrVal === "") {
-    return "";
-  }
 
-  // 1️⃣ Already a Date object
-  if (serialOrVal instanceof Date && !isNaN(serialOrVal)) {
-    return formatDateDDMMYYYY(serialOrVal);
-  }
 
-  // 2️⃣ Excel serial number
-  const maybeNum =
-    typeof serialOrVal === "number" ? serialOrVal : parseFloat(serialOrVal);
-
-  if (!isNaN(maybeNum)) {
-    const excelEpoch = new Date(1899, 11, 30);
-    const jsDate = new Date(excelEpoch.getTime() + Math.round(maybeNum) * 86400000);
-    if (!isNaN(jsDate)) {
-      return formatDateDDMMYYYY(jsDate);
-    }
-  }
-
-  // 3️⃣ Parse string dates
-  const parsed = new Date(serialOrVal);
-  if (!isNaN(parsed)) {
-    return formatDateDDMMYYYY(parsed);
-  }
-
-  // 4️⃣ Fallback
-  return String(serialOrVal);
-};
 
 const ExcelUploadPage = () => {
   const { classId } = useParams();
@@ -248,7 +219,7 @@ const ExcelUploadPage = () => {
         motherName: row[2] || "",
         examRollNo: row[3] || "",
         class: row[4] || "",
-        dob: excelDateToJS(row[5]) || "",
+        dob: row[5] ? String(row[5]).trim() : "",
         admissionNo: row[6] || "",
         house: row[7] || "",
         subjects: {},

@@ -456,6 +456,30 @@ const validateAllStudents = (students) => {
 };
 
 
+const excelDateToJS = (value) => {
+  if (value === null || value === undefined || value === "") return "";
+
+  // ✅ If Excel already gave string → KEEP AS IS
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  // ✅ If Excel gave Date object
+  if (value instanceof Date && !isNaN(value)) {
+    return formatDateDDMMYYYY(value);
+  }
+
+  // ✅ If Excel serial number
+  if (typeof value === "number") {
+    const excelEpoch = new Date(1899, 11, 30);
+    const jsDate = new Date(excelEpoch.getTime() + value * 86400000);
+    return formatDateDDMMYYYY(jsDate);
+  }
+
+  return String(value);
+};
+
+
 
 
 
@@ -474,6 +498,7 @@ export {
   formatHeaderLabel,
   validateSubject,
   validateStudent,
-  validateAllStudents
+  validateAllStudents,
+  excelDateToJS
 };
 
