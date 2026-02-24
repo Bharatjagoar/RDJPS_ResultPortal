@@ -21,10 +21,13 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
   // ✅ ADD THIS BLOCK HERE
   const subjectEntries = Object.entries(editData.subjects || {});
 
-  const dynamicFields =
-    subjectEntries.length > 0
-      ? Object.keys(subjectEntries[0][1]).filter(key => key !== "total")
-      : [];
+  const dynamicFields = Array.from(
+    new Set(
+      subjectEntries.flatMap(([_, marks]) =>
+        Object.keys(marks).filter(key => key !== "total")
+      )
+    )
+  );
   const teacherData = JSON.parse(localStorage.getItem("user"));
   const teacherClass = teacherData?.classTeacherOf;
   const studentClass = extractClassAndSection(student?.class);
