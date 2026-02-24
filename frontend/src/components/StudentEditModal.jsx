@@ -157,25 +157,25 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
                   <tr key={subject}>
                     <td className="subject-name">{subject}</td>
 
-                    {dynamicFields.map(field => (
-                      <td key={field}>
-                        <input
-                          type="number"
-                          className={`mark-input ${errors[`${subject}-${field}`] ? "input-error" : ""
-                            }`}
-                          value={marks[field] ?? ""}
-                          onChange={(e) =>
-                            handleSubjectChange(subject, field, e.target.value)
-                          }
-                          min="0"
-                        />
-                        {errors[`${subject}-${field}`] && (
-                          <span className="error-text">
-                            {errors[`${subject}-${field}`]}
-                          </span>
-                        )}
-                      </td>
-                    ))}
+                    {dynamicFields.map(field => {
+                      const fieldExists = marks.hasOwnProperty(field);
+
+                      return (
+                        <td key={field}>
+                          <input
+                            type="number"
+                            value={fieldExists ? marks[field] ?? "" : ""}
+                            onChange={(e) =>
+                              handleSubjectChange(subject, field, e.target.value)
+                            }
+                            disabled={!fieldExists}
+                            className={`mark-input ${!fieldExists ? "disabled-input" : ""
+                              } ${errors[`${subject}-${field}`] ? "input-error" : ""
+                              }`}
+                          />
+                        </td>
+                      );
+                    })}
 
                     <td className="total-cell">
                       <strong>{calculateTotal(subject)}</strong>
