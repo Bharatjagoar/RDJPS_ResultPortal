@@ -5,6 +5,7 @@ import { calculateGrade } from "../pages/utils";
 import { extractClassAndSection } from "../pages/utils";
 
 const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
+  console.log(student);
   const [editData, setEditData] = useState({});
   const [errors, setErrors] = useState({});
   console.log("here ", student)
@@ -16,6 +17,14 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
   }, [isOpen, student]);
 
   if (!isOpen || !student) return null;
+
+  // ✅ ADD THIS BLOCK HERE
+  const subjectEntries = Object.entries(editData.subjects || {});
+
+  const dynamicFields =
+    subjectEntries.length > 0
+      ? Object.keys(subjectEntries[0][1]).filter(key => key !== "total")
+      : [];
   const teacherData = JSON.parse(localStorage.getItem("user"));
   const teacherClass = teacherData?.classTeacherOf;
   const studentClass = extractClassAndSection(student?.class);
@@ -36,16 +45,16 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
       return "Cannot be negative";
     }
 
-    const limits = {
-      internals: 20,
-      midTerm: 30,
-      finalTerm: 50,
-      total: 100
-    };
+    // const limits = {
+    //   internals: 20,
+    //   midTerm: 30,
+    //   finalTerm: 50,
+    //   total: 100
+    // };
 
-    if (num > limits[field]) {
-      return `Cannot exceed ${limits[field]}`;
-    }
+    // if (num > limits[field]) {
+    //   return `Cannot exceed ${limits[field]}`;
+    // }
 
     return null;
   };
@@ -71,8 +80,11 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
   };
 
   const calculateTotal = (subject) => {
-    const marks = editData.subjects[subject];
-    return (marks.internals || 0) + (marks.midTerm || 0) + (marks.finalTerm || 0);
+    const marks = editData.subjects?.[subject] || {};
+
+    return Object.entries(marks)
+      .filter(([key]) => key !== "total")
+      .reduce((sum, [, value]) => sum + (Number(value) || 0), 0);
   };
 
   const hasErrors = () => {
@@ -128,69 +140,44 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
               <thead>
                 <tr>
                   <th>Subject</th>
-                  <th>Internals (20)</th>
-                  <th>Mid-Term (30)</th>
-                  <th>Final (50)</th>
-                  <th>Total (100)</th>
+
+                  {dynamicFields.map(field => (
+                    <th key={field}>{field.toUpperCase()}</th>
+                  ))}
+
+                  <th>Total</th>
                   <th>Grade</th>
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(editData.subjects || {}).map(([subject, marks]) => (
+                {subjectEntries.map(([subject, marks]) => (
                   <tr key={subject}>
                     <td className="subject-name">{subject}</td>
 
-                    {/* Internals */}
-                    <td>
-                      <input
-                        type="number"
-                        className={`mark-input ${errors[`${subject}-internals`] ? 'input-error' : ''}`}
-                        value={marks.internals}
-                        onChange={(e) => handleSubjectChange(subject, "internals", e.target.value)}
-                        min="0"
-                        max="20"
-                      />
-                      {errors[`${subject}-internals`] && (
-                        <span className="error-text">{errors[`${subject}-internals`]}</span>
-                      )}
-                    </td>
+                    {dynamicFields.map(field => (
+                      <td key={field}>
+                        <input
+                          type="number"
+                          className={`mark-input ${errors[`${subject}-${field}`] ? "input-error" : ""
+                            }`}
+                          value={marks[field] ?? ""}
+                          onChange={(e) =>
+                            handleSubjectChange(subject, field, e.target.value)
+                          }
+                          min="0"
+                        />
+                        {errors[`${subject}-${field}`] && (
+                          <span className="error-text">
+                            {errors[`${subject}-${field}`]}
+                          </span>
+                        )}
+                      </td>
+                    ))}
 
-                    {/* Mid-Term */}
-                    <td>
-                      <input
-                        type="number"
-                        className={`mark-input ${errors[`${subject}-midTerm`] ? 'input-error' : ''}`}
-                        value={marks.midTerm}
-                        onChange={(e) => handleSubjectChange(subject, "midTerm", e.target.value)}
-                        min="0"
-                        max="30"
-                      />
-                      {errors[`${subject}-midTerm`] && (
-                        <span className="error-text">{errors[`${subject}-midTerm`]}</span>
-                      )}
-                    </td>
-
-                    {/* Final */}
-                    <td>
-                      <input
-                        type="number"
-                        className={`mark-input ${errors[`${subject}-finalTerm`] ? 'input-error' : ''}`}
-                        value={marks.finalTerm}
-                        onChange={(e) => handleSubjectChange(subject, "finalTerm", e.target.value)}
-                        min="0"
-                        max="50"
-                      />
-                      {errors[`${subject}-finalTerm`] && (
-                        <span className="error-text">{errors[`${subject}-finalTerm`]}</span>
-                      )}
-                    </td>
-
-                    {/* Total (Auto-calculated) */}
                     <td className="total-cell">
                       <strong>{calculateTotal(subject)}</strong>
                     </td>
 
-                    {/* Grade */}
                     <td className="grade-cell">
                       <strong>{calculateGrade(calculateTotal(subject))}</strong>
                     </td>

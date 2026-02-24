@@ -170,36 +170,30 @@ const calculateGrade = (total) => {
   return "";
 };
 
-const calculateSubjectTotal = (marks) => {
+const calculateSubjectTotal = (marks = {}) => {
   if (!marks) return 0;
 
-  return (
-    (marks.internals || 0) +
-    (marks.midTerm || 0) +
-    (marks.finalTerm || 0)
-  );
+  return Object.entries(marks)
+    .filter(([key]) => key !== "total") // ignore stored total
+    .reduce((sum, [, value]) => sum + (Number(value) || 0), 0);
 };
 
 const calculateGrandTotalAndMax = (subjects = {}) => {
   let grandTotal = 0;
-  let subjectCount = 0;
+  let maxTotal = 0;
 
   Object.values(subjects).forEach((marks) => {
-    // consider subject only if any marks exist
-    const hasAnyMarks =
-      marks?.internals ||
-      marks?.midTerm ||
-      marks?.finalTerm;
+    const subjectTotal = calculateSubjectTotal(marks);
 
-    if (hasAnyMarks) {
-      subjectCount++;
-      grandTotal += calculateSubjectTotal(marks);
+    if (subjectTotal > 0) {
+      grandTotal += subjectTotal;
+      maxTotal += subjectTotal; // dynamic max based on actual components
     }
   });
 
   return {
     grandTotal,
-    maxTotal: subjectCount * 100
+    maxTotal
   };
 };
 
@@ -453,6 +447,13 @@ const validateAllStudents = (students) => {
     errors: allErrors,
     totalStudents: students.length
   };
+};
+
+const formatDateDDMMYYYY = (dateObj) => {
+  const dd = String(dateObj.getDate()).padStart(2, "0");
+  const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const yyyy = dateObj.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
 };
 
 
