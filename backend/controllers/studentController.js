@@ -94,6 +94,7 @@ const bulkUploadStudents = async (req, res) => {
 
     console.log(extractClassAndSection(students));
     let { className, section } = extractClassAndSection(students[0].class);
+    console.log("this is datat of stude ",students[0]);
     const resultofclass = await ensureClassAndSection(className, section);
     // console.log("result of class ======", resultofclass);
     if (!Array.isArray(students) || students.length === 0) {
@@ -121,7 +122,7 @@ const bulkUploadStudents = async (req, res) => {
         examRollNo: Number(incoming.examRollNo),
         class: incoming.class
       });
-      console.log(incoming);
+      console.log(incoming['email id']);
       // -----------------------------
       // 2️⃣ CREATE NEW STUDENT
       // -----------------------------
@@ -132,6 +133,8 @@ const bulkUploadStudents = async (req, res) => {
           motherName: incoming.motherName,
           examRollNo: Number(incoming.examRollNo),
           class: incoming.class,
+          email:incoming['email id'] || "",
+          phone : incoming['mobile'] || "",
           dob: incoming.dob || "",
           admissionNo: Number(incoming.admissionNo),
           activities: incoming.activities || {},

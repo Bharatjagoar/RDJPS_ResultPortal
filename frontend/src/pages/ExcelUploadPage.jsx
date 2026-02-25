@@ -81,7 +81,6 @@ const ExcelUploadPage = () => {
       const filteredHeaders = [];
       const indices = [];
 
-      // First 8 columns: basic info
       const basicInfoHeaders = [
         "Student's Name",
         "Father's Name",
@@ -90,20 +89,32 @@ const ExcelUploadPage = () => {
         "Class",
         "D.O.B",
         "Admission No.",
-        "House"
+        "House",
+        "Email id",
+        "Mobile"
       ];
 
-      basicInfoHeaders.forEach((h, i) => {
-        filteredHeaders.push(h);
-        indices.push(i);
+      basicInfoHeaders.forEach((headerName) => {
+        const index = subHeaders.findIndex(
+          h => h?.toString().trim() === headerName
+        );
+
+        if (index !== -1) {
+          filteredHeaders.push(headerName);
+          indices.push(index);
+        }
       });
 
       // -------- SUBJECT LOGIC --------
       let lastSubject = null;
 
-      for (let i = 8; i < mainHeaders.length; i++) {
+      for (let i = 0; i < mainHeaders.length; i++) {
+
+        // Skip basic info columns
+        if (indices.includes(i)) continue;
+
         const main = mainHeaders[i]?.toString().trim();
-        const sub = allSubHeaders[i]?.toString().toLowerCase().trim();
+        const sub = allSubHeaders[i]?.toString().trim();
 
         // Detect new subject ONLY when main header changes
         if (main && main !== lastSubject) {
@@ -193,7 +204,7 @@ const ExcelUploadPage = () => {
 
         if (sub) {
           activityColumns.push({
-            key: sub.toLowerCase().replace(/[^a-z0-9]/g, "_"), // ge, sports, comp_hobby
+            key: sub.toLowerCase().replace(/[^a-z0-9]/g, "_"),
             index: i
           });
         }
@@ -207,6 +218,7 @@ const ExcelUploadPage = () => {
     // ⭐ STEP 2: Transform rows
     // ===============================
     return fullRawData.map((row) => {
+      console.log(row)
       const studentData = {
         name: row[0] || "",
         fatherName: row[1] || "",
@@ -216,6 +228,8 @@ const ExcelUploadPage = () => {
         dob: row[5] ? String(row[5]).trim() : "",
         admissionNo: row[6] || "",
         house: row[7] || "",
+        "email id" : row[8] || "",
+        mobile: row[9] || "",
         subjects: {},
         activities: {}
       };
