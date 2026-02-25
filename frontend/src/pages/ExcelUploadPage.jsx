@@ -223,24 +223,59 @@ const ExcelUploadPage = () => {
       // ===============================
       // ⭐ SUBJECTS
       // ===============================
-      Object.entries(subjectMap).forEach(([subjectName, fields]) => {
-        if (!fields || fields.length === 0) return;
+      console.log(subjectMap)
+      const isSingleColumnSubjects = Object.values(subjectMap).every(fields => fields.length === 0);
+      console.log(isSingleColumnSubjects);
+      if (isSingleColumnSubjects) {
 
-        const subjectData = {};
+        const subjectStartIndex = 10;
 
-        fields.forEach(({ key, index }) => {
-          const raw = row[index];
-          const value = Number(raw);
+        Object.entries(subjectMap).forEach(([subjectName, _], indexOffset) => {
 
-          if (!isNaN(value)) {
-            subjectData[key] = value;
+          // ❌ Skip Activity
+          if (subjectName.toLowerCase() === "activity" ||
+            subjectName.toLowerCase() === "activities") {
+            return;
+          }
+
+          const subjectIndex = subjectStartIndex + indexOffset;
+          const value = row[subjectIndex];
+
+          if (value && value.toString().trim() !== "") {
+            studentData.subjects[subjectName] = {
+              grade: value.toString().trim()
+            };
           }
         });
+      } else {
+        // Handle Class 9–12 style (multi-component numeric)
 
-        if (hasAnyMarks(subjectData)) {
-          studentData.subjects[subjectName] = subjectData;
-        }
-      });
+        Object.entries(subjectMap).forEach(([subjectName, fields]) => {
+
+          // ❌ Skip Activity block
+          if (subjectName.toLowerCase() === "activity" ||
+            subjectName.toLowerCase() === "activities") {
+            console.log("yes");
+            return;
+          }
+          if (!fields || fields.length === 0) return;
+
+          const subjectData = {};
+
+          fields.forEach(({ key, index }) => {
+            const raw = row[index];
+            const value = Number(raw);
+
+            if (!isNaN(value)) {
+              subjectData[key] = value;
+            }
+          });
+
+          if (Object.keys(subjectData).length > 0) {
+            studentData.subjects[subjectName] = subjectData;
+          }
+        });
+      }
 
       // ===============================
       // ⭐ ACTIVITIES (Grades only)

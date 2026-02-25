@@ -28,6 +28,12 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
       )
     )
   );
+
+  // ✅ Detect if this class is grade-based (Class 1–5 style)
+  const isGradeBased =
+    subjectEntries.length > 0 &&
+    Object.keys(subjectEntries[0][1]).length === 1 &&
+    subjectEntries[0][1].hasOwnProperty("grade");
   const teacherData = JSON.parse(localStorage.getItem("user"));
   const teacherClass = teacherData?.classTeacherOf;
   const studentClass = extractClassAndSection(student?.class);
@@ -76,7 +82,9 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
         ...prev.subjects,
         [subject]: {
           ...prev.subjects[subject],
-          [field]: value === "" ? "" : Number(value)
+          [field]: isGradeBased
+            ? value
+            : value === "" ? "" : Number(value)
         }
       }
     }));
@@ -144,48 +152,78 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
                 <tr>
                   <th>Subject</th>
 
-                  {dynamicFields.map(field => (
-                    <th key={field}>{field.toUpperCase()}</th>
-                  ))}
-
-                  <th>Total</th>
-                  <th>Grade</th>
+                  {isGradeBased ? (
+                    <th>Grade</th>
+                  ) : (
+                    <>
+                      {dynamicFields.map(field => (
+                        <th key={field}>{field.toUpperCase()}</th>
+                      ))}
+                      <th>Total</th>
+                      <th>Grade</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {subjectEntries.map(([subject, marks]) => (
-                  <tr key={subject}>
-                    <td className="subject-name">{subject}</td>
+                {subjectEntries.map(([subject, marks]) => {
 
-                    {dynamicFields.map(field => {
-                      const fieldExists = marks.hasOwnProperty(field);
-
-                      return (
-                        <td key={field}>
+                  // ⭐ GRADE BASED (Class 1–5)
+                  if (isGradeBased) {
+                    return (
+                      <tr key={subject}>
+                        <td className="subject-name">{subject}</td>
+                        <td>
                           <input
-                            type="number"
-                            value={fieldExists ? marks[field] ?? "" : ""}
+                            type="text"
+                            value={marks.grade || ""}
                             onChange={(e) =>
-                              handleSubjectChange(subject, field, e.target.value)
+                              handleSubjectChange(subject, "grade", e.target.value)
                             }
-                            disabled={!fieldExists}
-                            className={`mark-input ${!fieldExists ? "disabled-input" : ""
-                              } ${errors[`${subject}-${field}`] ? "input-error" : ""
-                              }`}
+                            className="mark-input"
                           />
                         </td>
-                      );
-                    })}
+                      </tr>
+                    );
+                  }
 
-                    <td className="total-cell">
-                      <strong>{calculateTotal(subject)}</strong>
-                    </td>
+                  // ⭐ NUMERIC BASED (Class 9–12)
+                  const total = calculateTotal(subject);
 
-                    <td className="grade-cell">
-                      <strong>{calculateGrade(calculateTotal(subject))}</strong>
-                    </td>
-                  </tr>
-                ))}
+                  return (
+                    <tr key={subject}>
+                      <td className="subject-name">{subject}</td>
+
+                      {dynamicFields.map(field => {
+                        const fieldExists = marks.hasOwnProperty(field);
+
+                        return (
+                          <td key={field}>
+                            <input
+                              type="number"
+                              value={fieldExists ? marks[field] ?? "" : ""}
+                              onChange={(e) =>
+                                handleSubjectChange(subject, field, e.target.value)
+                              }
+                              disabled={!fieldExists}
+                              className={`mark-input ${!fieldExists ? "disabled-input" : ""
+                                } ${errors[`${subject}-${field}`] ? "input-error" : ""
+                                }`}
+                            />
+                          </td>
+                        );
+                      })}
+
+                      <td className="total-cell">
+                        <strong>{total}</strong>
+                      </td>
+
+                      <td className="grade-cell">
+                        <strong>{calculateGrade(total)}</strong>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

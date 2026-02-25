@@ -422,6 +422,7 @@ const validateAllStudents = (students) => {
   const admissionNoMap = new Map();
 
   students.forEach((student, index) => {
+    console.log(student);
     const studentErrors = validateStudent(student, index);
     allErrors.push(...studentErrors);
 

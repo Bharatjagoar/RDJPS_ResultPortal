@@ -381,7 +381,7 @@ const ClassRecordsPage = () => {
                 <th>Roll No</th>
                 <th>Name</th>
                 <th>Father's Name</th>
-                <th>Grand Total</th>
+                {/* <th>Grand Total</th> */}
                 <th>Result</th>
                 <th>Action</th>
               </tr>
@@ -403,11 +403,11 @@ const ClassRecordsPage = () => {
                     <td>{student.fatherName}</td>
 
                     {/* GRAND TOTAL */}
-                    <td className="grand-total-cell">
+                    {/* <td className="grand-total-cell">
                       <strong>
                         {grandTotal > 0 ? `${grandTotal} / ${maxTotal}` : "N/A"}
                       </strong>
-                    </td>
+                    </td> */}
 
                     {/* RESULT */}
                     <td>

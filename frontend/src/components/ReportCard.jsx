@@ -4,8 +4,21 @@ import "./ReportCard.css";
 const ReportCard = forwardRef(
   ({ student, classId, section }, ref) => {
 
-    const subjects = student.subjects || {};
+    const subjects = student?.subjects || {};
 
+    const subjectEntries = Object.entries(subjects);
+
+    const dynamicFields = Array.from(
+      new Set(
+        subjectEntries.flatMap(([_, marks]) =>
+          Object.keys(marks).filter(key => key !== "total")
+        )
+      )
+    );
+    const isGradeBased =
+      subjectEntries.length > 0 &&
+      Object.keys(subjectEntries[0][1]).length === 1 &&
+      subjectEntries[0][1].hasOwnProperty("grade");
     return (
       <div ref={ref} className="container">
         {/* HEADER */}
@@ -36,28 +49,45 @@ const ReportCard = forwardRef(
           <thead>
             <tr>
               <th>SUBJECT</th>
-              <th>Internal<br />Wt.(20)</th>
-              <th>Mid Term<br />Wt.(30)</th>
-              <th>Final Term<br />Wt.(50)</th>
-              <th>Total<br />(100)</th>
+
+              {isGradeBased ? (
+                <th>GRADE</th>
+              ) : (
+                <>
+                  {dynamicFields.map(field => (
+                    <th key={field}>{field.toUpperCase()}</th>
+                  ))}
+                  <th>TOTAL</th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody>
-            {Object.entries(subjects).map(([subject, m]) => {
-              const total =
-                (m.internals || 0) +
-                (m.midTerm || 0) +
-                (m.finalTerm || 0);
+            {subjectEntries.map(([subject, marks]) => {
 
-              // only render if marks exist
-              if (!total) return null;
+              // ⭐ GRADE BASED (Class 1–5)
+              if (isGradeBased) {
+                return (
+                  <tr key={subject}>
+                    <td>{subject.toUpperCase()}</td>
+                    <td>{marks.grade || "-"}</td>
+                  </tr>
+                );
+              }
+
+              // ⭐ NUMERIC BASED (Class 9–12)
+              const total = Object.entries(marks)
+                .filter(([key]) => key !== "total")
+                .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
 
               return (
                 <tr key={subject}>
                   <td>{subject.toUpperCase()}</td>
-                  <td>{m.internals || 0}</td>
-                  <td>{m.midTerm || 0}</td>
-                  <td>{m.finalTerm || 0}</td>
+
+                  {dynamicFields.map(field => (
+                    <td key={field}>{marks[field] ?? ""}</td>
+                  ))}
+
                   <td>{total}</td>
                 </tr>
               );
@@ -93,12 +123,12 @@ const ReportCard = forwardRef(
         )}
 
         {/* CO-CURRICULAR */}
-        {(student.activities || []).length > 0 && (
+        {student.activities && Object.keys(student.activities).length > 0 && (
           <table className="remarks-table">
-            {student.activities.map((a, i) => (
-              <tr key={i}>
-                <td>{a.name}</td>
-                <td>{a.grade}</td>
+            {Object.entries(student.activities).map(([name, grade]) => (
+              <tr key={name}>
+                <td>{name.toUpperCase()}</td>
+                <td>{grade}</td>
               </tr>
             ))}
           </table>
