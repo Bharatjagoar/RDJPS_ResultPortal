@@ -94,7 +94,7 @@ const bulkUploadStudents = async (req, res) => {
 
     console.log(extractClassAndSection(students));
     let { className, section } = extractClassAndSection(students[0].class);
-    console.log("this is datat of stude ",students[0]);
+    console.log("this is datat of stude ", students[0]);
     const resultofclass = await ensureClassAndSection(className, section);
     // console.log("result of class ======", resultofclass);
     if (!Array.isArray(students) || students.length === 0) {
@@ -113,8 +113,9 @@ const bulkUploadStudents = async (req, res) => {
 
     let inserted = 0;
     let updated = 0;
-
+    console.log("findiing new studentst 👍👍👍👍👍👍👍👍");
     for (const incoming of students) {
+
       // -----------------------------
       // 1️⃣ Find student
       // -----------------------------
@@ -122,7 +123,7 @@ const bulkUploadStudents = async (req, res) => {
         examRollNo: Number(incoming.examRollNo),
         class: incoming.class
       });
-      console.log(incoming['email id']);
+      console.log(incoming['finalRemark']);
       // -----------------------------
       // 2️⃣ CREATE NEW STUDENT
       // -----------------------------
@@ -133,8 +134,9 @@ const bulkUploadStudents = async (req, res) => {
           motherName: incoming.motherName,
           examRollNo: Number(incoming.examRollNo),
           class: incoming.class,
-          email:incoming['email id'] || "",
-          phone : incoming['mobile'] || "",
+          email: incoming['email id'] || "",
+          phone: incoming['mobile'] || "",
+          finalRemark: incoming.finalRemark || "",
           dob: incoming.dob || "",
           admissionNo: Number(incoming.admissionNo),
           activities: incoming.activities || {},
@@ -144,7 +146,7 @@ const bulkUploadStudents = async (req, res) => {
           result: incoming.result || null,
           grandTotal: Number(incoming.grandTotal) || 0
         });
-
+        console.log("new student : ", newStudent);
         await newStudent.save();
         inserted++;
         continue;

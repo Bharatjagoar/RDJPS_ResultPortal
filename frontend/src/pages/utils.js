@@ -482,6 +482,20 @@ const excelDateToJS = (value) => {
 };
 
 
+const getAcademicSession = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0 = Jan, 3 = April
+
+  if (month < 3) {
+    // Jan–March → previous academic year
+    return `${year - 1}-${year.toString().slice(-2)}`;
+  } else {
+    return `${year}-${(year + 1).toString().slice(-2)}`;
+  }
+};
+
+
 
 
 
@@ -501,6 +515,7 @@ export {
   validateSubject,
   validateStudent,
   validateAllStudents,
-  excelDateToJS
+  excelDateToJS,
+  getAcademicSession
 };
 

@@ -34,6 +34,7 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed,
     default: {}
   },
+  finalRemark: { type: String, default: "" },
 
   overallGrade: { type: String, default: null },
   result: { type: String, default: null },

@@ -212,6 +212,10 @@ const ExcelUploadPage = () => {
     }
 
 
+    const remarkIndex = allSubHeaders.findIndex(
+      h => h?.toString().toLowerCase().includes("remark")
+    );
+
     console.log("✅ Detected activity columns:", activityColumns);
 
     // ===============================
@@ -228,8 +232,9 @@ const ExcelUploadPage = () => {
         dob: row[5] ? String(row[5]).trim() : "",
         admissionNo: row[6] || "",
         house: row[7] || "",
-        "email id" : row[8] || "",
+        "email id": row[8] || "",
         mobile: row[9] || "",
+        finalRemark: remarkIndex !== -1 && row[remarkIndex] ? row[remarkIndex].toString().trim() : "",
         subjects: {},
         activities: {}
       };
