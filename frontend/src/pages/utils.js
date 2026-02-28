@@ -501,6 +501,9 @@ const getAcademicSession = () => {
 
 
 
+
+
+
 export {
   transformDataForBackend,
   calculateGrade,
@@ -516,6 +519,6 @@ export {
   validateStudent,
   validateAllStudents,
   excelDateToJS,
-  getAcademicSession
+  getAcademicSession,
 };
 

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    <%- cssContent2%>
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="report-container <%= isPrimary ? 'primary-theme' : '' %>">
+
+      <!-- HEADER -->
+      <div class="report-header">
+        <img src="data:image/jpeg;base64,<%= logoBase64 %>" class="school-logo" />
+
+        <div class="school-details">
+          <h1 class="school-name">
+            RUKMANI DEVI JAIPURIA PUBLIC SCHOOL
+          </h1>
+
+          <h2 class="school-address">
+            23, Rajpur Road, Delhi-110054
+            <span class="phone">Ph. 40314190</span>
+          </h2>
+
+          <p>An English Medium Sr. Sec. Co-Educational School</p>
+
+          <p class="affiliation">
+            Affiliated to CBSE
+            <span>Affiliation No.: 2730100</span>
+          </p>
+
+          <p class="school-meta">
+            School Id: 1207181
+            <span>School No: 85054</span>
+            <br>
+            <span>E-mail: rdjps2010@gmail.com</span>
+          </p>
+
+          <div class="academic-title">
+            Student's Academic Record <%= academicSession %>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT INFO -->
+      <div class="student-info">
+        <div class="info-grid">
+
+          <div class="info-item">
+            <span class="label">NAME:</span>
+            <span class="value">
+              <%= student.name %>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">CLASS:</span>
+            <span class="value">
+              <%= classId %>
+                <%= section %>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">ROLL NO.:</span>
+            <span class="value">
+              <%= student.examRollNo %>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">ADMISSION NUMBER :</span>
+            <span class="value">
+              <%= student.admissionNo || "—" %>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">FATHER'S NAME:</span>
+            <span class="value">
+              <%= student.fatherName || "—" %>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">MOTHER'S NAME:</span>
+            <span class="value">
+              <%= student.motherName || "—" %>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">HOUSE:</span>
+            <span class="value">
+              <%= student.house || "—" %>
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MARKS TABLE -->
+      <table class="marks-table">
+        <thead>
+          <tr>
+            <th>SUBJECT</th>
+
+            <% if (isGradeBased) { %>
+              <th>GRADE</th>
+              <% } else { %>
+                <% dynamicFields.forEach(field=> { %>
+                  <th>
+                    <%= field.toUpperCase() %>
+                  </th>
+                  <% }) %>
+                    <th>TOTAL</th>
+                    <% } %>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% subjectEntries.forEach(([subject, marks])=> { %>
+
+            <% if (isGradeBased) { %>
+              <tr>
+                <td>
+                  <%= subject.toUpperCase() %>
+                </td>
+                <td>
+                  <%= marks.grade || "-" %>
+                </td>
+              </tr>
+              <% } else { %>
+
+                <% const total=Object.entries(marks) .filter(([key])=> key !== "total")
+                  .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
+                  %>
+
+                  <tr>
+                    <td>
+                      <%= subject.toUpperCase() %>
+                    </td>
+
+                    <% dynamicFields.forEach(field=> { %>
+                      <td>
+                        <%= marks[field] ?? "" %>
+                      </td>
+                      <% }) %>
+
+                        <td>
+                          <%= total %>
+                        </td>
+                  </tr>
+
+                  <% } %>
+
+                    <% }) %>
+        </tbody>
+      </table>
+
+      <!-- ATTENDANCE -->
+      <% if (student.attendance) { %>
+        <div class="attendance">
+          <strong>ATTENDANCE:</strong>
+          <%= student.attendance %>
+        </div>
+        <% } %>
+
+          <!-- CO-CURRICULAR -->
+          <% if (student.activities && Object.keys(student.activities).length> 0) { %>
+            <table class="remarks-table">
+              <% Object.entries(student.activities).forEach(([name, grade])=> { %>
+                <tr>
+                  <td>
+                    <%= name.toUpperCase() %>
+                  </td>
+                  <td>
+                    <%= grade %>
+                  </td>
+                </tr>
+                <% }) %>
+            </table>
+            <% } %>
+
+              <!-- FINAL REMARK -->
+              <div class="final-remark-section">
+                <div class="remark-title">REMARKS :- </div>
+                <div class="remark-box">
+                  <% if (student.finalRemark && student.finalRemark.trim() !=="" ) { %>
+                    <%= student.finalRemark %>
+                      <% } else { %>
+                        —
+                        <% } %>
+                </div>
+              </div>
+
+              <!-- FOOTER -->
+              <div class="footer">
+                <div class="footer-item">
+                  <div>CLASS TEACHER</div>
+                </div>
+                <div class="footer-item">
+                  <div>EXAM I/C</div>
+                </div>
+                <div class="footer-item">
+                  <div>DIRECTOR(ACAD)/HOS</div>
+                </div>
+              </div>
+
+              <div class="note">
+                Electronically generated signature not required
+              </div>
+
+    </div>
+  </div>
+
+</body>
+
+</html>

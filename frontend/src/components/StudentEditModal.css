@@ -274,3 +274,76 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================= */
+/* STUDENT MODAL – MOBILE FIX */
+/* ============================= */
+
+@media (max-width: 768px) {
+
+  /* Fullscreen modal on mobile */
+  .student-modal-box {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    padding: 15px 18px;
+  }
+
+  .modal-header h2 {
+    font-size: 18px;
+  }
+
+  .modal-content {
+    padding: 15px;
+  }
+
+  /* Student info stacked */
+  .student-info-card {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Make table scroll instead of squeeze */
+  .subjects-section {
+    overflow-x: auto;
+  }
+
+  .edit-table {
+    min-width: 700px; /* forces horizontal scroll */
+  }
+
+  .edit-table th,
+  .edit-table td {
+    white-space: nowrap;
+  }
+
+  /* Smaller inputs */
+  .mark-input,
+  .grade-input {
+    min-width: 60px;
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  /* Total column slightly bigger */
+  .total-cell {
+    font-size: 14px;
+  }
+
+  /* Footer buttons stack */
+  .modal-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cancel-modal-btn,
+  .save-modal-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+}

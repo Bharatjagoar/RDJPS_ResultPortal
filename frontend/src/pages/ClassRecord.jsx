@@ -101,6 +101,7 @@ const ClassRecordsPage = () => {
   console.log(classId);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const [section, setSection] = useState("");
   const [hasSelectedSection, setHasSelectedSection] = useState(false);
@@ -136,6 +137,22 @@ const ClassRecordsPage = () => {
       toast.error("Failed to fetch students");
     } finally {
       setLoading(false);
+    }
+  };
+  const handleSendEmail = async (student) => {
+    try {
+      setIsSending(true);
+
+      await api.post(
+        `/reports/send-report/${student._id}`
+      );
+
+      alert("Report sent successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to send report");
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -433,6 +450,12 @@ const ClassRecordsPage = () => {
 
                       >
                         Download Report
+                      </button>
+                      <button
+                        className="email-btn"
+                        onClick={() => handleSendEmail(student)}
+                      >
+                        Send via Email
                       </button>
                     </td>
 

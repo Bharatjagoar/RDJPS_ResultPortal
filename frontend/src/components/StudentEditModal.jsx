@@ -130,7 +130,6 @@ const StudentEditModal = ({ isOpen, onClose, student, onSave, isverified }) => {
           <h2>Edit Student: {student.name}</h2>
           <button className="modal-close-btn" onClick={onClose}>✖</button>
         </div>
-
         <div className="modal-content">
           {/* Student Basic Info */}
           <div className="student-info-card">

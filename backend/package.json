@@ -8,18 +8,21 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev":"nodemon idnex.js",
+    "dev": "nodemon idnex.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "ejs": "^4.0.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.0.0",
     "nodemailer": "^7.0.11",
     "nodemon": "^3.1.11",
+    "pdfkit": "^0.17.2",
+    "puppeteer": "^24.37.5",
     "sib-api-v3-sdk": "^8.5.0"
   }
 }

@@ -16,6 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 const activityRoutes = require("./routes/activity");
 const adminROutes = require("./routes/adminRoutes");
 const classVerificationRoutes = require("./routes/classVerificationRoutes")
+const reportRoutes = require("./routes/reportRoutes");
 
 // Initialize Express app
 const app = express();
@@ -52,6 +53,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api/admin", adminROutes)
 app.use("/api/class-verification", classVerificationRoutes);
+app.use("/api/reports", reportRoutes);
 
 
 app.use(express.static(path.join(__dirname, "dist")))
