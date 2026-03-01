@@ -2,6 +2,7 @@ const puppeteer = require("puppeteer");
 const ejs = require("ejs");
 const path = require("path");
 const fs = require("fs");
+const {extractClassAndSection , getSectionFullName,getAcademicSession} = require("../utils/utility");
 
 const generateReportPdf = async (student, classId, section) => {
 
@@ -35,8 +36,13 @@ const generateReportPdf = async (student, classId, section) => {
     subjectEntries[0][1].hasOwnProperty("grade");
 
   const classNumber = parseInt(student.class);
+  
+  const { className: excelClass, section: excelSection } = extractClassAndSection(student.class);
   const isPrimary = classNumber <= 5;
+  section= getSectionFullName( excelClass , excelSection );
+  classId = excelClass;
 
+  console.log(student.class)
   const html = await ejs.renderFile(templatePath, {
     student,
     classId,
@@ -45,7 +51,7 @@ const generateReportPdf = async (student, classId, section) => {
     dynamicFields,
     isGradeBased,
     isPrimary,
-    academicSession: "2025-26",
+    academicSession: getAcademicSession(),
     cssContent2,
     logoBase64 // 👈 add this
   });

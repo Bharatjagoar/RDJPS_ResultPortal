@@ -222,7 +222,6 @@ const ExcelUploadPage = () => {
     // ⭐ STEP 2: Transform rows
     // ===============================
     return fullRawData.map((row) => {
-      console.log(row)
       const studentData = {
         name: row[0] || "",
         fatherName: row[1] || "",
