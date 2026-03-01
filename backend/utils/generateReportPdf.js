@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 const ejs = require("ejs");
 const path = require("path");
 const fs = require("fs");
-const {extractClassAndSection , getSectionFullName,getAcademicSession} = require("../utils/utility");
+const { extractClassAndSection, getSectionFullName, getAcademicSession } = require("../utils/utility");
 
 const generateReportPdf = async (student, classId, section) => {
 
@@ -36,10 +36,10 @@ const generateReportPdf = async (student, classId, section) => {
     subjectEntries[0][1].hasOwnProperty("grade");
 
   const classNumber = parseInt(student.class);
-  
+
   const { className: excelClass, section: excelSection } = extractClassAndSection(student.class);
   const isPrimary = classNumber <= 5;
-  section= getSectionFullName( excelClass , excelSection );
+  section = getSectionFullName(excelClass, excelSection);
   classId = excelClass;
 
   console.log(student.class)
@@ -68,7 +68,8 @@ const generateReportPdf = async (student, classId, section) => {
   const page = await browser.newPage();
 
   await page.setContent(html, {
-    waitUntil: "networkidle0"
+    waitUntil: "domcontentloaded",
+    timeout: 60000
   });
 
   const pdfUint8Array = await page.pdf({
