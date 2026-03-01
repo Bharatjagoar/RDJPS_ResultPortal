@@ -19,7 +19,6 @@ const sendEmailWithAttachment = async (
 
 
   console.log("PDF Buffer size (bytes):", pdfBuffer.length);
-  console.log("Base64 starts with:", pdfBuffer.toString("base64").slice(0,10));
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
   sendSmtpEmail.sender = {

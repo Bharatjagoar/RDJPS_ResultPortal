@@ -4,6 +4,28 @@ const path = require("path");
 const fs = require("fs");
 const { extractClassAndSection, getSectionFullName, getAcademicSession } = require("../utils/utility");
 
+
+let browserInstance = null;
+
+async function getBrowser() {
+  if (!browserInstance) {
+    browserInstance = await puppeteer.launch({
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--allow-file-access-from-files"
+      ]
+    });
+
+    console.log("✅ Puppeteer launched once");
+  }
+
+  return browserInstance;
+}
+
+
+
 const generateReportPdf = async (student, classId, section) => {
 
   const templatePath = path.join(__dirname, "../templates/reportCard.ejs");
@@ -56,14 +78,7 @@ const generateReportPdf = async (student, classId, section) => {
     logoBase64 // 👈 add this
   });
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--allow-file-access-from-files"
-    ]
-  });
+  const browser = await getBrowser();
 
   const page = await browser.newPage();
 
@@ -76,8 +91,8 @@ const generateReportPdf = async (student, classId, section) => {
     format: "A4",
     printBackground: true
   });
-
-  await browser.close();
+  
+  await page.close();
 
   // Convert Uint8Array to Buffer
   return Buffer.from(pdfUint8Array);
