@@ -47,10 +47,13 @@ const generateReportPdf = async (student, classId, section) => {
   const dynamicFields = Array.from(
     new Set(
       subjectEntries.flatMap(([_, marks]) =>
-        Object.keys(marks).filter(key => key !== "total")
+        Object.keys(marks).filter(
+          key => key.toLowerCase() !== "total"
+        )
       )
     )
   );
+  console.log("Sample marks keys:", Object.keys(subjectEntries[0]?.[1] || {}));
 
   const isGradeBased =
     subjectEntries.length > 0 &&
@@ -59,23 +62,36 @@ const generateReportPdf = async (student, classId, section) => {
 
   const classNumber = parseInt(student.class);
 
+  const REPORT_WEIGHTAGE = {
+    6: { internals: 30, midterm: 20, finalterm: 50, total: 100 },
+    7: { internals: 30, midterm: 20, finalterm: 50, total: 100 },
+    8: { internals: 30, midterm: 20, finalterm: 50, total: 100 },
+    9: { internals: 20, midterm: 30, finalterm: 50, total: 100 },
+    10: { internals: 20, midterm: 30, finalterm: 50, total: 100 },
+    11: { ut: 10, midterm: "20/25", finalterm: "40/45", project: 20, practical: 30, total: 100 }
+  };
+
+
+  const weightage = REPORT_WEIGHTAGE[classNumber] || {};
   const { className: excelClass, section: excelSection } = extractClassAndSection(student.class);
   const isPrimary = classNumber <= 5;
   section = getSectionFullName(excelClass, excelSection);
   classId = excelClass;
 
   console.log(student.class)
+  console.log("Dynamic Fields:", dynamicFields);
   const html = await ejs.renderFile(templatePath, {
     student,
     classId,
     section,
     subjectEntries,
     dynamicFields,
+    weightage,   // 👈 IMPORTANT
     isGradeBased,
     isPrimary,
     academicSession: getAcademicSession(),
     cssContent2,
-    logoBase64 // 👈 add this
+    logoBase64
   });
 
   const browser = await getBrowser();
@@ -91,7 +107,7 @@ const generateReportPdf = async (student, classId, section) => {
     format: "A4",
     printBackground: true
   });
-  
+
   await page.close();
 
   // Convert Uint8Array to Buffer

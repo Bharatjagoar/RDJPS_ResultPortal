@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import "./ReportCard.css";
 import logo from "../assets/logo.jpeg";
 import primaryBg from "../assets/background.png";
-import { getAcademicSession, excelDateToJS } from "../pages/utils";
+import { getAcademicSession, excelDateToJS, getSectionFullName } from "../pages/utils";
 
 const ReportCard = forwardRef(
   ({ student, classId, section }, ref) => {
@@ -11,14 +11,24 @@ const ReportCard = forwardRef(
     const subjects = student?.subjects || {};
 
     const subjectEntries = Object.entries(subjects);
+    console.log("fdsa :---------", subjectEntries);
+    const FIELD_ORDER = ["ut", "internals", "mid-term", "final-term", "project", "practical"];
+    const fullSection = getSectionFullName(classId, section);
 
-    const dynamicFields = Array.from(
+    const rawFields = Array.from(
       new Set(
         subjectEntries.flatMap(([_, marks]) =>
-          Object.keys(marks).filter(key => key !== "total")
+          Object.keys(marks).filter(key => key.toLowerCase() !== "total")
         )
       )
     );
+
+    const dynamicFields = [
+      ...FIELD_ORDER
+        .filter(f => rawFields.some(r => r.toLowerCase() === f))
+        .map(f => rawFields.find(r => r.toLowerCase() === f)),
+      ...rawFields.filter(r => !FIELD_ORDER.includes(r.toLowerCase()))
+    ];
     const isGradeBased =
       subjectEntries.length > 0 &&
       Object.keys(subjectEntries[0][1]).length === 1 &&
@@ -26,6 +36,16 @@ const ReportCard = forwardRef(
 
     const classNumber = parseInt(student.class);
     const isPrimary = classNumber <= 5;
+    const REPORT_WEIGHTAGE = {
+      6: { internals: 30, midterm: 20, finalterm: 50 },
+      7: { internals: 30, midterm: 20, finalterm: 50 },
+      8: { internals: 30, midterm: 20, finalterm: 50 },
+      9: { internals: 20, midterm: 30, finalterm: 50 },
+      10: { internals: 20, midterm: 30, finalterm: 50 },
+      11: { ut: 10, midterm: "20/25", finalterm: "40/45", project: 20, practical: 30 },
+      12: { ut: 10, midterm: "20/25", finalterm: "40/45", project: 20, practical: 30 },
+    };
+    const weightage = REPORT_WEIGHTAGE[classNumber] || {};
     const academicSession = getAcademicSession();
     return (
       <div ref={ref} className="container">
@@ -75,7 +95,9 @@ const ReportCard = forwardRef(
 
               <div className="info-item">
                 <span className="label">CLASS:</span>
-                <span className="value">{classId} {section}</span>
+                <span className="value">
+                  {classId} {fullSection || section}
+                </span>
               </div>
 
               <div className="info-item">
@@ -116,10 +138,25 @@ const ReportCard = forwardRef(
                   <th>GRADE</th>
                 ) : (
                   <>
-                    {dynamicFields.map(field => (
-                      <th key={field}>{field.toUpperCase()}</th>
-                    ))}
-                    <th>TOTAL</th>
+                    {dynamicFields.map(field => {
+                      const key = field.toLowerCase();
+                      const wKey = key.replace(/[\s\-]/g, "");
+                      const w = weightage[wKey];
+
+                      const HEADER_DISPLAY_MAP = {
+                        project: "PROJECT / ASL"
+                      };
+
+                      const displayName =
+                        HEADER_DISPLAY_MAP[key] || field.toUpperCase();
+
+                      return (
+                        <th key={field}>
+                          {displayName}{w ? ` (${w})` : ""}
+                        </th>
+                      );
+                    })}
+                    <th>TOTAL(100)</th>
                   </>
                 )}
               </tr>
@@ -138,9 +175,9 @@ const ReportCard = forwardRef(
                 }
 
                 // ⭐ NUMERIC BASED (Class 9–12)
-                const total = Object.entries(marks)
-                  .filter(([key]) => key !== "total")
-                  .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
+                // Use stored total (case-insensitive lookup)
+                const totalKey = Object.keys(marks).find(k => k.toLowerCase() === "total");
+                const total = totalKey !== undefined ? marks[totalKey] : "";
 
                 return (
                   <tr key={subject}>

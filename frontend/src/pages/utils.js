@@ -167,7 +167,7 @@ const calculateGrade = (total) => {
   if (total >= 33) return "D";
   if (total >= 21) return "E1";
   if (total >= 1) return "E2";
-  return "";
+  return "-";
 };
 
 const calculateSubjectTotal = (marks = {}) => {
@@ -239,13 +239,13 @@ const normalize = (text = "") =>
 
 
 const detectKey = (sub) => {
-  if (sub.includes("ut")) return "ut";
-  if (sub.includes("mid")) return "mid";
-  if (sub.includes("final")) return "final";
-  if (sub.includes("project")) return "project";
-  if (sub.includes("internal")) return "internal";
-  if (sub.includes("practical")) return "practical";
-  if (sub.includes("total")) return "total";
+  if (sub.includes("ut")) return "UT";
+  if (sub.includes("mid")) return "MID-TERM";
+  if (sub.includes("final")) return "FINAL-TERM";
+  if (sub.includes("project")) return "PROJECT";
+  if (sub.includes("internal")) return "INTERNAL";
+  if (sub.includes("practical")) return "PRACTICAL";
+  if (sub.includes("total")) return "TOTAL";
   return null;
 };
 
@@ -498,6 +498,41 @@ const getAcademicSession = () => {
 
 
 
+const getSectionFullName = (classNumber, rawSection) => {
+  if (!classNumber || !rawSection) {
+    return null;
+  }
+
+  const section = rawSection.toString().trim().toUpperCase();
+  const cls = Number(classNumber);
+
+  // For Class 6–10
+  if (cls >= 6 && cls <= 10) {
+    const sectionMap = {
+      T: "Tulip",
+      L: "Lotus",
+      D: "Dahlia",
+      M: "Mogra",
+    };
+
+    return sectionMap[section] || null;
+  }
+
+  // For Class 11–12
+  if (cls === 11 || cls === 12) {
+    const streamMap = {
+      S: "Science",
+      C: "Commerce",
+      A: "Arts",
+    };
+
+    return streamMap[section] || null;
+  }
+
+  return null;
+};
+
+
 
 
 
@@ -520,5 +555,6 @@ export {
   validateAllStudents,
   excelDateToJS,
   getAcademicSession,
+  getSectionFullName
 };
 

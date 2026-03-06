@@ -114,12 +114,21 @@
               <th>GRADE</th>
               <% } else { %>
                 <% dynamicFields.forEach(field=> { %>
-                  <th>
-                    <%= field.toUpperCase() %>
-                  </th>
-                  <% }) %>
-                    <th>TOTAL</th>
-                    <% } %>
+
+                  <% const normalizedField=field.toLowerCase().replace(/[\s\-]/g,""); %>
+
+                    <th>
+                      <%= field.toUpperCase() %>
+
+                        <% if(weightage[normalizedField]) { %>
+                          (<%= weightage[normalizedField] %>)
+                            <% } %>
+
+                    </th>
+
+                    <% }) %>
+                      <th>TOTAL</th>
+                      <% } %>
           </tr>
         </thead>
 
@@ -137,8 +146,7 @@
               </tr>
               <% } else { %>
 
-                <% const total=Object.entries(marks) .filter(([key])=> key !== "total")
-                  .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
+                <%   const total = marks.total ?? marks.TOTAL ?? marks.Total ?? "";
                   %>
 
                   <tr>
