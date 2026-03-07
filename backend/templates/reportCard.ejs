@@ -114,21 +114,29 @@
               <th>GRADE</th>
               <% } else { %>
                 <% dynamicFields.forEach(field=> { %>
+                  <% const normalizedField=field.toLowerCase().replace(/[\s\-]/g, "" ); %>
+                    <% const w=weightage[normalizedField]; %>
 
-                  <% const normalizedField=field.toLowerCase().replace(/[\s\-]/g,""); %>
-
-                    <th>
-                      <%= field.toUpperCase() %>
-
-                        <% if(weightage[normalizedField]) { %>
-                          (<%= weightage[normalizedField] %>)
+                      <% if (typeof w==='string' && w.includes('/')) { %>
+                        <% const parts=w.split('/'); const w1=parts[0]; const w2=parts[1]; %>
+                          <th style="padding:0; text-align:center;">
+                            <div style="font-weight:bold; padding: 4px 0 2px;">
+                              <%= field.toLowerCase().replace(/[\s\-]/g, "" )==='project' ? 'PROJECT / ASL' :field.toUpperCase() %>
+                            </div>
+                            <div style="display:flex; border-top: 1px solid #000000;">
+                              <span style="flex:1; padding:2px 4px; border-right:1px solid #000000;">(<%= w1 %>)</span>
+                              <span style="flex:1; padding:2px 4px;">(<%= w2 %>)</span>
+                            </div>
+                          </th>
+                          <% } else { %>
+                            <th>
+                              <%= field.toLowerCase().replace(/[\s\-]/g, "") === 'project' ? 'PROJECT / ASL' : field.toUpperCase() %>
+                                <% if (w) { %>(<%= w %>)<% } %>
+                            </th>
                             <% } %>
-
-                    </th>
-
-                    <% }) %>
-                      <th>TOTAL</th>
-                      <% } %>
+                              <% }) %>
+                                <th>TOTAL(100)</th>
+                                <% } %>
           </tr>
         </thead>
 
@@ -146,8 +154,7 @@
               </tr>
               <% } else { %>
 
-                <%   const total = marks.total ?? marks.TOTAL ?? marks.Total ?? "";
-                  %>
+                <% const total=marks.total ?? marks.TOTAL ?? marks.Total ?? "" ; %>
 
                   <tr>
                     <td>
@@ -155,14 +162,39 @@
                     </td>
 
                     <% dynamicFields.forEach(field=> { %>
-                      <td>
-                        <%= marks[field] ?? "" %>
-                      </td>
-                      <% }) %>
+                      <% const normalizedField=field.toLowerCase().replace(/[\s\-]/g, "" ); %>
+                        <% const w=weightage[normalizedField]; %>
+                          <% const cellVal=marks[field] ?? "" ; %>
 
-                        <td>
-                          <%= total %>
-                        </td>
+                            <% if (typeof w==='string' && w.includes('/')) { %>
+                              <% // Get this subject's specific max for this field const
+                                subjectMax=subjectMaxMap[subject] && subjectMaxMap[subject][normalizedField]; const
+                                parts=w.split('/'); const w1=parseInt(parts[0]); // lower max e.g. 20 const
+                                w2=parseInt(parts[1]); // higher max e.g. 25 // If subject's max equals w2 (25/45),
+                                //value goes in RIGHT cell, else LEFT 
+                                const goesRight=subjectMax===w2; %>
+                                <td style="padding:0; text-align:center;">
+                                  <div style="display:flex; height:100%; align-items:stretch;">
+                                    <span
+                                      style="flex:1; padding:4px; border-right:2px solid #666; display:flex; align-items:center; justify-content:center;">
+                                      <%= (!goesRight && cellVal !=="" ) ? cellVal : "" %>
+                                    </span>
+                                    <span
+                                      style="flex:1; padding:4px; display:flex; align-items:center; justify-content:center;">
+                                      <%= (goesRight && cellVal !=="" ) ? cellVal : "" %>
+                                    </span>
+                                  </div>
+                                </td>
+                                <% } else { %>
+                                  <td>
+                                    <%= cellVal %>
+                                  </td>
+                                  <% } %>
+                                    <% }) %>
+
+                                      <td>
+                                        <%= total %>
+                                      </td>
                   </tr>
 
                   <% } %>

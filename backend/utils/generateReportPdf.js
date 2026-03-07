@@ -19,28 +19,33 @@ async function getBrowser() {
     });
 
     console.log("✅ Puppeteer launched once");
+
+    browserInstance.on("disconnected", () => {
+      console.log("⚠ Puppeteer browser disconnected. Resetting instance.");
+      browserInstance = null;
+    });
   }
 
   return browserInstance;
 }
+const templatePath = path.join(__dirname, "../templates/reportCard.ejs");
 
+const cssFilePath = path.join(__dirname, "../public/ReportCard.css");
+const cssContent = fs.readFileSync(cssFilePath, "utf8");
+const logoFilePath = path.join(__dirname, "../public/logo.jpeg");
+const logoBase64 = fs.readFileSync(logoFilePath).toString("base64");
+const bgFilePath = path.join(__dirname, "../public/background.jpg");
+const bgBase64 = fs.readFileSync(bgFilePath).toString("base64");
+
+const cssContent2 = cssContent.replace(
+  /background-image:\s*url\([^)]+\);/,
+  `background-image: url("data:image/png;base64,${bgBase64}");`
+);
 
 
 const generateReportPdf = async (student, classId, section) => {
 
-  const templatePath = path.join(__dirname, "../templates/reportCard.ejs");
 
-  const cssFilePath = path.join(__dirname, "../public/ReportCard.css");
-  const cssContent = fs.readFileSync(cssFilePath, "utf8");
-  const logoFilePath = path.join(__dirname, "../public/logo.jpeg");
-  const logoBase64 = fs.readFileSync(logoFilePath).toString("base64");
-  const bgFilePath = path.join(__dirname, "../public/background.jpg");
-  const bgBase64 = fs.readFileSync(bgFilePath).toString("base64");
-
-  const cssContent2 = cssContent.replace(
-    /background-image:\s*url\([^)]+\);/,
-    `background-image: url("data:image/png;base64,${bgBase64}");`
-  );
 
   const subjectEntries = Object.entries(student.subjects || {});
 
@@ -77,6 +82,21 @@ const generateReportPdf = async (student, classId, section) => {
   const isPrimary = classNumber <= 5;
   section = getSectionFullName(excelClass, excelSection);
   classId = excelClass;
+  // Per-subject max map for split columns (Class 11)
+  const subjectMaxMap = {};
+
+  if (classNumber === 11) {
+    subjectEntries.forEach(([subject, marks]) => {
+      const keys = Object.keys(marks).map(k => k.toLowerCase());
+      const hasProject = keys.includes("project") || keys.includes("asl");
+      const hasPractical = keys.includes("practical");
+
+      subjectMaxMap[subject] = {
+        midterm: hasProject ? 25 : 20,
+        finalterm: hasProject ? 45 : 40,
+      };
+    });
+  }
 
   console.log(student.class)
   console.log("Dynamic Fields:", dynamicFields);
@@ -86,7 +106,8 @@ const generateReportPdf = async (student, classId, section) => {
     section,
     subjectEntries,
     dynamicFields,
-    weightage,   // 👈 IMPORTANT
+    weightage,
+    subjectMaxMap,   // 👈 ADD THIS
     isGradeBased,
     isPrimary,
     academicSession: getAcademicSession(),
@@ -98,20 +119,25 @@ const generateReportPdf = async (student, classId, section) => {
 
   const page = await browser.newPage();
 
-  await page.setContent(html, {
-    waitUntil: "domcontentloaded",
-    timeout: 60000
-  });
+  await page.setDefaultNavigationTimeout(60000);
+  await page.setDefaultTimeout(60000);
 
-  const pdfUint8Array = await page.pdf({
-    format: "A4",
-    printBackground: true
-  });
+  try {
+    await page.setContent(html, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000
+    });
 
-  await page.close();
+    const pdfUint8Array = await page.pdf({
+      format: "A4",
+      printBackground: true
+    });
 
-  // Convert Uint8Array to Buffer
-  return Buffer.from(pdfUint8Array);
+    return Buffer.from(pdfUint8Array);
+
+  } finally {
+    await page.close();
+  }
 };
 
 module.exports = generateReportPdf;
