@@ -221,6 +221,8 @@ const ExcelUploadPage = () => {
     // ===============================
     // ⭐ STEP 2: Transform rows
     // ===============================
+    const posAt = fullRawData[0].length-2
+    console.log(fullRawData[0][posAt]);
     return fullRawData.map((row) => {
       const studentData = {
         name: row[0] || "",
@@ -234,6 +236,7 @@ const ExcelUploadPage = () => {
         "email id": row[8] || "",
         mobile: row[9] || "",
         finalRemark: remarkIndex !== -1 && row[remarkIndex] ? row[remarkIndex].toString().trim() : "",
+          attendance: row[posAt] ? Number(row[posAt]) : null,  // ⭐ ADD THIS
         subjects: {},
         activities: {}
       };

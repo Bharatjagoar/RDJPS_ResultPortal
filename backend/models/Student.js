@@ -35,6 +35,10 @@ const studentSchema = new mongoose.Schema({
     default: {}
   },
   finalRemark: { type: String, default: "" },
+  attendance: {        // ⭐ ADD THIS
+    type: Number,
+    default: null
+  },
 
   overallGrade: { type: String, default: null },
   result: { type: String, default: null },

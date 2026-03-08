@@ -65,9 +65,17 @@ const getAcademicSession = (date = new Date()) => {
 };
 
 
+function getSmallOrdinal(n) {
+  const suffixes = ["th", "st", "nd", "rd"];
+  // For 1, 2, and 3, we pick from the array. For 4-12, we default to "th".
+  const suffix = (n <= 3) ? suffixes[n] : suffixes[0];
+  return n + suffix;
+}
+
 
 module.exports ={
     extractClassAndSection,
     getSectionFullName,
-    getAcademicSession
+    getAcademicSession,
+    getSmallOrdinal
 }

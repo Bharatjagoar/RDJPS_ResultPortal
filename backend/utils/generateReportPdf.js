@@ -68,11 +68,11 @@ const generateReportPdf = async (student, classId, section) => {
   const classNumber = parseInt(student.class);
 
   const REPORT_WEIGHTAGE = {
-    6: { internals: 30, midterm: 20, finalterm: 50, total: 100 },
-    7: { internals: 30, midterm: 20, finalterm: 50, total: 100 },
-    8: { internals: 30, midterm: 20, finalterm: 50, total: 100 },
-    9: { internals: 20, midterm: 30, finalterm: 50, total: 100 },
-    10: { internals: 20, midterm: 30, finalterm: 50, total: 100 },
+    6: { internal: 30, midterm: 20, finalterm: 50, total: 100 },
+    7: { internal: 30, midterm: 20, finalterm: 50, total: 100 },
+    8: { internal: 30, midterm: 20, finalterm: 50, total: 100 },
+    9: { internal: 20, midterm: 30, finalterm: 50, total: 100 },
+    10: { internal: 20, midterm: 30, finalterm: 50, total: 100 },
     11: { ut: 10, midterm: "20/25", finalterm: "40/45", project: 20, practical: 30, total: 100 }
   };
 
@@ -98,7 +98,7 @@ const generateReportPdf = async (student, classId, section) => {
     });
   }
 
-  console.log(student.class)
+  console.log(student)
   console.log("Dynamic Fields:", dynamicFields);
   const html = await ejs.renderFile(templatePath, {
     student,

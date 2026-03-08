@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import "./ReportCard.css";
 import logo from "../assets/logo.jpeg";
 import primaryBg from "../assets/background.png";
-import { getAcademicSession, excelDateToJS, getSectionFullName } from "../pages/utils";
+import { getAcademicSession, excelDateToJS, getSectionFullName, calculateGrade } from "../pages/utils";
 
 const ReportCard = forwardRef(
   ({ student, classId, section }, ref) => {
@@ -12,7 +12,7 @@ const ReportCard = forwardRef(
 
     const subjectEntries = Object.entries(subjects);
     console.log("fdsa :---------", subjectEntries);
-    const FIELD_ORDER = ["ut", "internals", "mid-term", "final-term", "project", "practical"];
+    const FIELD_ORDER = ["ut", "internal", "mid-term", "final-term", "project", "practical"];
     const fullSection = getSectionFullName(classId, section);
 
     const rawFields = Array.from(
@@ -37,11 +37,11 @@ const ReportCard = forwardRef(
     const classNumber = parseInt(student.class);
     const isPrimary = classNumber <= 5;
     const REPORT_WEIGHTAGE = {
-      6: { internals: 30, midterm: 20, finalterm: 50 },
-      7: { internals: 30, midterm: 20, finalterm: 50 },
-      8: { internals: 30, midterm: 20, finalterm: 50 },
-      9: { internals: 20, midterm: 30, finalterm: 50 },
-      10: { internals: 20, midterm: 30, finalterm: 50 },
+      6: { internal: 30, midterm: 20, finalterm: 50 },
+      7: { internal: 30, midterm: 20, finalterm: 50 },
+      8: { internal: 30, midterm: 20, finalterm: 50 },
+      9: { internal: 20, midterm: 30, finalterm: 50 },
+      10: { internal: 20, midterm: 30, finalterm: 50 },
       11: { ut: 10, midterm: "20/25", finalterm: "40/45", project: 20, practical: 30 },
       12: { ut: 10, midterm: "20/25", finalterm: "40/45", project: 20, practical: 30 },
     };
@@ -176,6 +176,7 @@ const ReportCard = forwardRef(
                       );
                     })}
                     <th>TOTAL(100)</th>
+                    <th>GRADE</th>
                   </>
                 )}
               </tr>
@@ -239,6 +240,8 @@ const ReportCard = forwardRef(
                     })}
 
                     <td>{total}</td>
+                    <td>{calculateGrade(total)}</td>
+
                   </tr>
                 );
               })}
@@ -255,7 +258,9 @@ const ReportCard = forwardRef(
           )}
 
           {/* CO-CURRICULAR */}
+          <div className="remark-title">Activity Grades :- </div>
           {student.activities && Object.keys(student.activities).length > 0 && (
+            
             <table className="remarks-table">
               {Object.entries(student.activities).map(([name, grade]) => (
                 <tr key={name}>
