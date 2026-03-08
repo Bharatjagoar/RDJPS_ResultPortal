@@ -139,23 +139,63 @@ const ClassRecordsPage = () => {
       setLoading(false);
     }
   };
+
   const handleSendEmail = async (student) => {
+
+    const sentEmails =
+      JSON.parse(localStorage.getItem("sentReportEmails")) || {};
+
+    // ⭐ Local check
+    if (sentEmails[student._id]) {
+      toast.info("Email already sent for this student");
+      return;
+    }
+
     try {
+
       setIsSending(true);
 
-      await api.post(
-        `/reports/send-report/${student._id}`
+      await api.post(`/reports/send-report/${student._id}`);
+
+      toast.success("Report sent successfully!");
+
+      // ⭐ Update localStorage
+      sentEmails[student._id] = true;
+
+      localStorage.setItem(
+        "sentReportEmails",
+        JSON.stringify(sentEmails)
       );
 
-      alert("Report sent successfully!");
     } catch (error) {
+
       console.error(error);
-      alert("Failed to send report");
+
+      // ⭐ If backend says already sent
+      if (error.response?.data?.message === "Email already sent") {
+
+        toast.info("Email already sent for this student");
+
+        // update localStorage to sync frontend
+        sentEmails[student._id] = true;
+
+        localStorage.setItem(
+          "sentReportEmails",
+          JSON.stringify(sentEmails)
+        );
+
+        return;
+      }
+
+      // ⭐ Real error
+      toast.error("Failed to send report");
+
     } finally {
+
       setIsSending(false);
+
     }
   };
-
   useEffect(() => {
     console.log("hellow bharat");
     async function getsections() {
@@ -366,7 +406,7 @@ const ClassRecordsPage = () => {
       .save();
   };
 
-
+  const sentEmails = JSON.parse(localStorage.getItem("sentReportEmails")) || {};
   // =========================
   // MAIN TABLE UI
   // =========================
@@ -453,9 +493,14 @@ const ClassRecordsPage = () => {
                       </button>
                       <button
                         className="email-btn"
+                        disabled={sentEmails[student._id] || isSending}
                         onClick={() => handleSendEmail(student)}
                       >
-                        Send via Email
+                        {sentEmails[student._id]
+                          ? "Email Sent ✓"
+                          : isSending
+                            ? "Sending..."
+                            : "Send via Email"}
                       </button>
                     </td>
 

@@ -39,7 +39,21 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
+  // ⭐ EMAIL TRACKING (NEW)
+  emailSent: {
+    type: Boolean,
+    default: false
+  },
 
+  emailSentAt: {
+    type: Date,
+    default: null
+  },
+
+  emailMessageId: {
+    type: String,
+    default: null
+  },
   overallGrade: { type: String, default: null },
   result: { type: String, default: null },
   grandTotal: { type: Number, required: true, min: 0 }

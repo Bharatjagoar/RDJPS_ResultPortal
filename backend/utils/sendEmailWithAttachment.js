@@ -25,7 +25,7 @@ const sendEmailWithAttachment = async (
     email: process.env.EMAIL_FROM,
     name: "RDJPS Result Portal",
   };
-  console.log("this is to :: ",to)
+  console.log("this is to :: ", to)
   sendSmtpEmail.to = [{ email: to }];
   sendSmtpEmail.subject = subject;
   sendSmtpEmail.textContent = message;
@@ -38,6 +38,7 @@ const sendEmailWithAttachment = async (
     }
   ];
 
-  await emailApi.sendTransacEmail(sendSmtpEmail);
+  const response = await emailApi.sendTransacEmail(sendSmtpEmail);
+  return response;
 };
 module.exports = sendEmailWithAttachment;
