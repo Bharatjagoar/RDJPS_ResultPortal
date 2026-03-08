@@ -142,7 +142,7 @@ const bulkUploadStudents = async (req, res) => {
           subjects: incoming.subjects || {},
           overallGrade: incoming.overallGrade || null,
           result: incoming.result || null,
-          attendance : incoming.attendance || null,
+          attendance: incoming.attendance || null,
           grandTotal: Number(incoming.grandTotal) || 0
         });
         await newStudent.save();
@@ -479,7 +479,8 @@ module.exports = {
 
 
 module.exports.getsection = async (req, res) => {
-  console.log("hellow bharat");
+  // console.log("hellow bharat");
+
   const { classId } = req.params;
   console.log(req.params);
   try {
@@ -500,3 +501,64 @@ module.exports.getsection = async (req, res) => {
 
 
 }
+
+
+module.exports.resetEmailDataForClass = async (req, res) => {
+  try {
+
+    const { className, section } = req.params;
+
+    const classId = `${className} ${section}`;
+
+    await Student.updateMany(
+      { class: classId },
+      {
+        $set: {
+          emailSent: false,
+          emailSentAt: null,
+          emailMessageId: null
+        }
+      }
+    );
+
+    res.json({
+      success: true,
+      message: `Email data reset for class ${classId}`
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      message: "Failed to reset email data"
+    });
+  }
+};
+
+
+module.exports.resetClassData = async (req, res) => {
+
+  try {
+
+    const { className, section } = req.params;
+
+    const classId = `${className} ${section}`;
+
+    await Student.deleteMany({ class: classId });
+
+    res.json({
+      success: true,
+      message: `Academic data reset for ${classId}`
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      message: "Failed to reset class data"
+    });
+
+  }
+};

@@ -101,7 +101,7 @@ const ClassRecordsPage = () => {
   console.log(classId);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
+  const [sendingId, setSendingId] = useState(null);
 
   const [section, setSection] = useState("");
   const [hasSelectedSection, setHasSelectedSection] = useState(false);
@@ -110,7 +110,17 @@ const ClassRecordsPage = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [existingsections, setexistingSection] = useState([]);
   const [isVerified, setIsVerified] = useState(false);
+  const [sentEmails, setSentEmails] = useState(() => {
+    return JSON.parse(localStorage.getItem("sentReportEmails")) || {};
+  });
 
+
+  const handleResetEmailState = () => {
+
+    localStorage.removeItem("sentReportEmails");
+
+    setSentEmails({}); // reset buttons immediately
+  };
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -142,10 +152,7 @@ const ClassRecordsPage = () => {
 
   const handleSendEmail = async (student) => {
 
-    const sentEmails =
-      JSON.parse(localStorage.getItem("sentReportEmails")) || {};
-
-    // ⭐ Local check
+    if (sendingId) return;
     if (sentEmails[student._id]) {
       toast.info("Email already sent for this student");
       return;
@@ -153,49 +160,56 @@ const ClassRecordsPage = () => {
 
     try {
 
-      setIsSending(true);
+      setSendingId(student._id); // ⭐ track this student
 
       await api.post(`/reports/send-report/${student._id}`);
 
       toast.success("Report sent successfully!");
 
-      // ⭐ Update localStorage
-      sentEmails[student._id] = true;
+      const updated = {
+        ...sentEmails,
+        [student._id]: true
+      };
+
+      setSentEmails(updated);
 
       localStorage.setItem(
         "sentReportEmails",
-        JSON.stringify(sentEmails)
+        JSON.stringify(updated)
       );
 
     } catch (error) {
 
-      console.error(error);
-
-      // ⭐ If backend says already sent
       if (error.response?.data?.message === "Email already sent") {
 
         toast.info("Email already sent for this student");
 
-        // update localStorage to sync frontend
-        sentEmails[student._id] = true;
+        const updated = {
+          ...sentEmails,
+          [student._id]: true
+        };
+
+        setSentEmails(updated);
 
         localStorage.setItem(
           "sentReportEmails",
-          JSON.stringify(sentEmails)
+          JSON.stringify(updated)
         );
 
         return;
       }
 
-      // ⭐ Real error
       toast.error("Failed to send report");
 
     } finally {
 
-      setIsSending(false);
+      setSendingId(null); // reset
 
     }
   };
+
+
+
   useEffect(() => {
     console.log("hellow bharat");
     async function getsections() {
@@ -291,7 +305,7 @@ const ClassRecordsPage = () => {
   if (!hasSelectedSection) {
     return (
       <>
-        <Navbar />
+        <Navbar onResetEmail={handleResetEmailState} />
 
 
         <div className="records-container empty-state">
@@ -340,7 +354,7 @@ const ClassRecordsPage = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
+        <Navbar onResetEmail={handleResetEmailState} />
         <Loader text="Fetching student records..." />
       </>
     );
@@ -353,7 +367,7 @@ const ClassRecordsPage = () => {
   if (!loading && students.length === 0) {
     return (
       <>
-        <Navbar />
+        <Navbar onResetEmail={handleResetEmailState} />
         <div className="records-container empty-state">
           <h1 className="records-title">
             Class {classId} {section} — Student Records
@@ -406,13 +420,13 @@ const ClassRecordsPage = () => {
       .save();
   };
 
-  const sentEmails = JSON.parse(localStorage.getItem("sentReportEmails")) || {};
+  // const sentEmails = JSON.parse(localStorage.getItem("sentReportEmails")) || {};
   // =========================
   // MAIN TABLE UI
   // =========================
   return (
     <>
-      <Navbar />
+      <Navbar onResetEmail={handleResetEmailState} />
       <div className="records-container">
         <h1 className="records-title">
           Class {classId} {section} — Student Records
@@ -493,12 +507,12 @@ const ClassRecordsPage = () => {
                       </button>
                       <button
                         className="email-btn"
-                        disabled={sentEmails[student._id] || isSending}
+                        disabled={sentEmails[student._id] || sendingId === student._id}
                         onClick={() => handleSendEmail(student)}
                       >
                         {sentEmails[student._id]
                           ? "Email Sent ✓"
-                          : isSending
+                          : sendingId === student._id
                             ? "Sending..."
                             : "Send via Email"}
                       </button>
