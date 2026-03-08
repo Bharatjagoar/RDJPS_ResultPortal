@@ -538,14 +538,22 @@ module.exports.resetEmailDataForClass = async (req, res) => {
 
 
 module.exports.resetClassData = async (req, res) => {
-
   try {
-
     const { className, section } = req.params;
 
     const classId = `${className} ${section}`;
 
+    // 1️⃣ Delete all students of this class section
     await Student.deleteMany({ class: classId });
+
+    // 2️⃣ Remove the section from class document
+    await classcollection.updateOne(
+      { class: className },
+      {
+        $pull: { section: section },
+        $set: { Marksverified: false }
+      }
+    );
 
     res.json({
       success: true,
@@ -553,12 +561,11 @@ module.exports.resetClassData = async (req, res) => {
     });
 
   } catch (err) {
-
     console.error(err);
 
     res.status(500).json({
+      success: false,
       message: "Failed to reset class data"
     });
-
   }
 };
