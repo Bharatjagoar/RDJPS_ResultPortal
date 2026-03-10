@@ -89,16 +89,30 @@ const generateReportPdf = async (student, classId, section) => {
     subjectEntries.forEach(([subject, marks]) => {
       const keys = Object.keys(marks).map(k => k.toLowerCase());
       const hasProject = keys.includes("project") || keys.includes("asl");
-      const hasPractical = keys.includes("practical");
 
       subjectMaxMap[subject] = {
         midterm: hasProject ? 25 : 20,
         finalterm: hasProject ? 45 : 40,
       };
+
+      const ut = parseFloat(marks['UT']) || 0;
+      const midterm = parseFloat(marks['MID-TERM']) || 0;
+      const finalterm =
+        parseFloat(
+          marks['FINALTERM'] ??
+          marks['FINAL TERM'] ??
+          marks['FINAL-TERM']
+        ) || 0;
+
+      // THEORY = UT + MIDTERM + FINALTERM
+      const theory = ut + midterm + finalterm;
+
+      marks['THEORY'] = theory;
+
+      console.log(`${subject} → UT:${ut} MID:${midterm} FINAL:${finalterm} THEORY:${theory}`);
     });
   }
-
-  console.log(student)
+  console.log("this is student object :-", student)
   console.log("Dynamic Fields:", dynamicFields);
   const html = await ejs.renderFile(templatePath, {
     student,

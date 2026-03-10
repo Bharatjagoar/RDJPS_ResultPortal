@@ -114,38 +114,77 @@
               <th>GRADE</th>
               <% } else { %>
                 <% dynamicFields.forEach(field=> { %>
+
                   <% const normalizedField=field.toLowerCase().replace(/[\s\-]/g, "" ); %>
                     <% const w=weightage[normalizedField]; %>
 
                       <% if (typeof w==='string' && w.includes('/')) { %>
                         <% const parts=w.split('/'); const w1=parts[0]; const w2=parts[1]; %>
+
                           <th style="padding:0; text-align:center;">
                             <div style="font-weight:bold; padding: 4px 0 2px;">
-                              <%= field.toLowerCase().replace(/[\s\-]/g, "" )==='project' ? 'PROJECT / ASL'
-                                :field.toUpperCase() %>
+                              <%= field.toLowerCase().replace(/[\s\-]/g,"")==='project' ? 'PROJECT / ASL' :
+                                field.toUpperCase() %>
                             </div>
-                            <div style="display:flex; border-top: 1px solid #000000;">
-                              <span style="flex:1; padding:2px 4px; border-right:1px solid #000000;">(<%= w1 %>)</span>
-                              <span style="flex:1; padding:2px 4px;">(<%= w2 %>)</span>
+
+                            <div style="display:flex; border-top: 1px solid #000;">
+                              <span style="flex:1; padding:2px 4px; border-right:1px solid #000;">
+                                (<%= w1 %>)
+                              </span>
+                              <span style="flex:1; padding:2px 4px;">
+                                (<%= w2 %>)
+                              </span>
                             </div>
                           </th>
+
                           <% } else { %>
+
                             <th>
-                              <%= field.toLowerCase().replace(/[\s\-]/g, "" )==='project' ? 'PROJECT / ASL' :
+                              <%= field.toLowerCase().replace(/[\s\-]/g,"")==='project' ? 'PROJECT / ASL' :
                                 field.toUpperCase() %>
                                 <% if (w) { %>(<%= w %>)<% } %>
                             </th>
+
                             <% } %>
-                              <% }) %>
-                                <th>TOTAL(100)</th>
-                                <th>GRADE</th>
-                                <% } %>
+
+                              <% if (normalizedField==="finalterm" && (classId==11 || classId==12)) { %>
+
+                                <% const theoryMaxValues=Object.values(subjectMaxMap || {}).map(v=> {
+                                  const mid = v.midterm || 0;
+                                  if (mid === 25) return 80;
+                                  if (mid === 20) return 70;
+                                  return null;
+                                  }).filter(v => v !== null);
+
+                                  const theoryMaxLeft = theoryMaxValues.length ? Math.min(...theoryMaxValues) : "";
+                                  const theoryMaxRight = theoryMaxValues.length ? Math.max(...theoryMaxValues) : "";
+                                  %>
+
+                                  <th style="padding:0; text-align:center;">
+                                    <div style="font-weight:bold; padding:4px 0 2px;">THEORY</div>
+
+                                    <div style="display:flex; border-top:1px solid #000;">
+                                      <span style="flex:1; padding:2px 4px; border-right:1px solid #000;">
+                                        (<%= theoryMaxLeft %>)
+                                      </span>
+
+                                      <span style="flex:1; padding:2px 4px;">
+                                        (<%= theoryMaxRight %>)
+                                      </span>
+                                    </div>
+                                  </th>
+
+                                  <% } %>
+
+                                    <% }) %>
+                                      <th>TOTAL(100)</th>
+                                      <th>GRADE</th>
+                                      <% } %>
           </tr>
         </thead>
 
         <tbody>
-          <% function getGrade(total) { 
-            const t=parseFloat(total); if (isNaN(t)) return "" ; if (t>= 91) return "A1";
+          <% function getGrade(total) { const t=parseFloat(total); if (isNaN(t)) return "" ; if (t>= 91) return "A1";
             if (t >= 81) return "A2";
             if (t >= 71) return "B1";
             if (t >= 61) return "B2";
@@ -177,42 +216,83 @@
                       </td>
 
                       <% dynamicFields.forEach(field=> { %>
+
                         <% const normalizedField=field.toLowerCase().replace(/[\s\-]/g, "" ); %>
                           <% const w=weightage[normalizedField]; %>
                             <% const cellVal=marks[field] ?? "" ; %>
 
                               <% if (typeof w==='string' && w.includes('/')) { %>
-                                <% // Get this subject's specific max for this field const
-                                  subjectMax=subjectMaxMap[subject] && subjectMaxMap[subject][normalizedField]; const
-                                  parts=w.split('/'); const w1=parseInt(parts[0]); // lower max e.g. 20 const
-                                  w2=parseInt(parts[1]); // higher max e.g. 25 // If subject's max equals w2 (25/45),
-                                  //value goes in RIGHT cell, else LEFT 
-                                  const goesRight=subjectMax===w2; %>
-                                  <td style="padding:0; text-align:center;">
-                                    <div style="display:flex; height:100%; align-items:stretch;">
-                                      <span
-                                        style="flex:1; padding:4px; border-right:2px solid #666; display:flex; align-items:center; justify-content:center;">
-                                        <%= (!goesRight && cellVal !=="" ) ? cellVal : "" %>
-                                      </span>
-                                      <span
-                                        style="flex:1; padding:4px; display:flex; align-items:center; justify-content:center;">
-                                        <%= (goesRight && cellVal !=="" ) ? cellVal : "" %>
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <% } else { %>
-                                    <td>
-                                      <%= cellVal %>
-                                    </td>
-                                    <% } %>
-                                      <% }) %>
 
-                                        <td>
-                                          <%= total %>
-                                        </td>
-                                        <td><%= getGrade(total) %></td>
+                                <% const mid=subjectMaxMap[subject]?.midterm || 0; const theoryMax=mid===25 ? 80 : 70;
+                                  goesRight=theoryMax===80; %>
+                                  <% const parts=w.split('/'); %>
+                                    <% const w1=parseInt(parts[0]); %>
+                                      <% const w2=parseInt(parts[1]); %>
 
-                                        
+                                        <% const subjectMax=subjectMaxMap[subject] ?
+                                          subjectMaxMap[subject][normalizedField] : null; %>
+                                          <% goesRight=subjectMax===w2; %>
+
+                                            <td style="padding:0; text-align:center;">
+                                              <div style="display:flex; height:100%; align-items:stretch;">
+                                                <span style="flex:1; padding:4px; border-right:2px solid #666;">
+                                                  <%= (!goesRight && cellVal !=="" ) ? cellVal : "" %>
+                                                </span>
+
+                                                <span style="flex:1; padding:4px;">
+                                                  <%= (goesRight && cellVal !=="" ) ? cellVal : "" %>
+                                                </span>
+                                              </div>
+                                            </td>
+
+                                            <% } else { %>
+
+                                              <td>
+                                                <%= cellVal %>
+                                              </td>
+
+                                              <% } %>
+
+                                                <% if (normalizedField==="finalterm" ) { %>
+                                                  <% if (normalizedField==="finalterm" && (classId==11 || classId==12))
+                                                    { %>
+
+                                                    <% const theory=marks.theory ?? marks.THEORY ?? "" ; 
+                                                    // detect theory type using midterm weight 
+                                                    const mid=subjectMaxMap[subject]?.midterm || 0; // project subjects (25
+                                                      //midterm) → theory 80 // practical subjects (20 midterm) → theory
+                                                      //70 
+                                                      const theoryMax=mid===25 ? 80 : 70; 
+                                                      const goesRight=theoryMax===80; %>
+
+                                                      <td style="padding:0; text-align:center;">
+                                                        <div style="display:flex; height:100%; align-items:stretch;">
+
+                                                          <!-- LEFT column (70) -->
+                                                          <span
+                                                            style="flex:1; padding:4px; border-right:2px solid #666;">
+                                                            <%= (!goesRight && theory !=="" ) ? theory : "" %>
+                                                          </span>
+
+                                                          <!-- RIGHT column (80) -->
+                                                          <span style="flex:1; padding:4px;">
+                                                            <%= (goesRight && theory !=="" ) ? theory : "" %>
+                                                          </span>
+
+                                                        </div>
+                                                      </td>
+
+                                                      <% } %>
+                                                        <% } %>
+
+                                                          <% }) %>
+
+                                                            <td>
+                                                              <%= total %>
+                                                            </td>
+                                                            <td>
+                                                              <%= getGrade(total) %>
+                                                            </td>
 
                     </tr>
 
