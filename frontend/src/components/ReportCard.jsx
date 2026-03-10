@@ -158,21 +158,38 @@ const ReportCard = forwardRef(
                       const HEADER_DISPLAY_MAP = { project: "PROJECT / ASL" };
                       const displayName = HEADER_DISPLAY_MAP[key] || field.toUpperCase();
 
-                      if (typeof w === 'string' && w.includes('/')) {
-                        const [w1, w2] = w.split('/');
-                        return (
-                          <th key={field} style={{ padding: 0, textAlign: 'center' }}>
-                            <div style={{ fontWeight: 'bold', padding: '4px 0 2px' }}>{displayName}</div>
-                            <div style={{ display: 'flex', borderTop: '1px solid #999' }}>
-                              <span style={{ flex: 1, padding: '2px 4px', borderRight: '2px solid #666' }}>({w1})</span>
-                              <span style={{ flex: 1, padding: '2px 4px' }}>({w2})</span>
-                            </div>
-                          </th>
-                        );
-                      }
+                      const header = (() => {
+                        if (typeof w === 'string' && w.includes('/')) {
+                          const [w1, w2] = w.split('/');
+                          return (
+                            <th key={field} style={{ padding: 0, textAlign: 'center' }}>
+                              <div style={{ fontWeight: 'bold', padding: '4px 0 2px' }}>{displayName}</div>
+                              <div style={{ display: 'flex', borderTop: '1px solid #999' }}>
+                                <span style={{ flex: 1, padding: '2px 4px', borderRight: '2px solid #666' }}>({w1})</span>
+                                <span style={{ flex: 1, padding: '2px 4px' }}>({w2})</span>
+                              </div>
+                            </th>
+                          );
+                        }
+
+                        return <th key={field}>{displayName}{w ? ` (${w})` : ""}</th>;
+                      })();
 
                       return (
-                        <th key={field}>{displayName}{w ? ` (${w})` : ""}</th>
+                        <>
+                          {header}
+
+                          {/* ⭐ THEORY HEADER for Class 11/12 */}
+                          {wKey === "finalterm" && (classNumber === 11 || classNumber === 12) && (
+                            <th style={{ padding: 0, textAlign: "center" }}>
+                              <div style={{ fontWeight: "bold", padding: "4px 0 2px" }}>THEORY</div>
+                              <div style={{ display: "flex", borderTop: "1px solid #999" }}>
+                                <span style={{ flex: 1, padding: "2px 4px", borderRight: "2px solid #666" }}>(70)</span>
+                                <span style={{ flex: 1, padding: "2px 4px" }}>(80)</span>
+                              </div>
+                            </th>
+                          )}
+                        </>
                       );
                     })}
                     <th>TOTAL(100)</th>
@@ -209,34 +226,73 @@ const ReportCard = forwardRef(
                       const w = weightage[wKey];
                       const cellVal = marks[field] ?? "";
 
+                      const cells = [];
+
                       if (typeof w === 'string' && w.includes('/')) {
                         const parts = w.split('/');
-                        const w2 = parseInt(parts[1]); // higher max e.g. 25 or 45
+                        const w2 = parseInt(parts[1]);
                         const subjectMax = subjectMaxMap[subject] && subjectMaxMap[subject][wKey];
                         const goesRight = subjectMax === w2;
 
-                        return (
+                        cells.push(
                           <td key={field} style={{ padding: 0, textAlign: 'center' }}>
                             <div style={{ display: 'flex', height: '100%', alignItems: 'stretch' }}>
                               <span style={{
-                                flex: 1, padding: '4px',
+                                flex: 1,
+                                padding: '4px',
                                 borderRight: '2px solid #666',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                               }}>
                                 {!goesRight && cellVal !== "" ? cellVal : ""}
                               </span>
+
                               <span style={{
-                                flex: 1, padding: '4px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                flex: 1,
+                                padding: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                               }}>
                                 {goesRight && cellVal !== "" ? cellVal : ""}
                               </span>
                             </div>
                           </td>
                         );
+
+                      } else {
+                        cells.push(<td key={field}>{cellVal}</td>);
                       }
 
-                      return <td key={field}>{cellVal}</td>;
+                      // ⭐ ADD THEORY COLUMN AFTER FINAL TERM
+                      if (wKey === "finalterm" && (classNumber === 11 || classNumber === 12)) {
+                        console.log("marks : ", marks);
+                        const theory =
+                          (Number(marks.UT || 0)) +
+                          (Number(marks["MID-TERM"] || marks.MID-TERM || 0)) +
+                          (Number(marks["FINAL-TERM"] || marks.FINAL-TERM || 0));
+
+                        const mid = subjectMaxMap[subject]?.midterm || 0;
+                        const theoryMax = mid === 25 ? 80 : 70;
+                        const goesRight = theoryMax === 80;
+
+                        cells.push(
+                          <td key={`${field}-theory`} style={{ padding: 0, textAlign: "center" }}>
+                            <div style={{ display: "flex", height: "100%" }}>
+                              <span style={{ flex: 1, padding: "4px", borderRight: "2px solid #666" }}>
+                                {!goesRight ? theory : ""}
+                              </span>
+
+                              <span style={{ flex: 1, padding: "4px" }}>
+                                {goesRight ? theory : ""}
+                              </span>
+                            </div>
+                          </td>
+                        );
+                      }
+
+                      return cells;
                     })}
 
                     <td>{total}</td>
@@ -260,7 +316,7 @@ const ReportCard = forwardRef(
           {/* CO-CURRICULAR */}
           <div className="remark-title">Activity Grades :- </div>
           {student.activities && Object.keys(student.activities).length > 0 && (
-            
+
             <table className="remarks-table">
               {Object.entries(student.activities).map(([name, grade]) => (
                 <tr key={name}>
