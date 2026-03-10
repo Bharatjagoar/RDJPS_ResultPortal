@@ -236,7 +236,7 @@ const ExcelUploadPage = () => {
         "email id": row[8] || "",
         mobile: row[9] || "",
         finalRemark: remarkIndex !== -1 && row[remarkIndex] ? row[remarkIndex].toString().trim() : "",
-          attendance: row[posAt] ? Number(row[posAt]) : null,  // ⭐ ADD THIS
+          attendance: row[posAt] ? String(row[posAt]) : null,  // ⭐ ADD THIS
         subjects: {},
         activities: {}
       };

@@ -36,7 +36,7 @@ const studentSchema = new mongoose.Schema({
   },
   finalRemark: { type: String, default: "" },
   attendance: {        // ⭐ ADD THIS
-    type: Number,
+    type: String,
     default: null
   },
   // ⭐ EMAIL TRACKING (NEW)
