@@ -270,8 +270,8 @@ const ReportCard = forwardRef(
                         console.log("marks : ", marks);
                         const theory =
                           (Number(marks.UT || 0)) +
-                          (Number(marks["MID-TERM"] || marks.MID-TERM || 0)) +
-                          (Number(marks["FINAL-TERM"] || marks.FINAL-TERM || 0));
+                          (Number(marks["MID-TERM"] || 0)) +
+                          (Number(marks["FINAL-TERM"] ||  0));
 
                         const mid = subjectMaxMap[subject]?.midterm || 0;
                         const theoryMax = mid === 25 ? 80 : 70;
