@@ -399,10 +399,10 @@ const validateStudent = (student, rowIndex) => {
     errors.push(`${studentIdentifier} - Valid admission number is required`);
   }
 
-  const validHouses = ['Vallabhi', 'Pushpagiri', 'Takshshila', 'Nalanda'];
-  if (student.house && !validHouses.includes(student.house)) {
-    errors.push(`${studentIdentifier} - Invalid house: ${student.house}`);
-  }
+  // const validHouses = ['Vallabhi', 'Pushpagiri', 'Takshshila', 'Nalanda'];
+  // if (student.house && !validHouses.includes(student.house)) {
+  //   errors.push(`${studentIdentifier} - Invalid house: ${student.house}`);
+  // }
 
   if (!student.subjects || Object.keys(student.subjects).length === 0) {
     errors.push(`${studentIdentifier} - At least one subject is required`);

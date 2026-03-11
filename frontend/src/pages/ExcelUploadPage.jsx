@@ -382,7 +382,7 @@ const ExcelUploadPage = () => {
     }
 
     console.log("✅ VALIDATION PASSED!");
-    console.log(transformedData);
+    console.log( );
 
     // console.log(transformedData);
     // ⭐ Now send to backend with Axios
