@@ -23,8 +23,7 @@ const studentSchema = new mongoose.Schema({
   phone: { type: String, default: "" },
   house: {
     type: String,
-    required: true,
-    enum: ['Vallabhi', 'Pushpagiri', 'Takshshila', 'Nalanda']
+    required: true
   },
   subjects: {
     type: mongoose.Schema.Types.Mixed,
